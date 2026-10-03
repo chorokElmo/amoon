@@ -1,0 +1,31 @@
+{
+  "name": "@amoon/medusa",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "medusa develop",
+    "build": "node scripts/build.mjs",
+    "start": "medusa start",
+    "db:migrate": "medusa db:migrate",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@medusajs/admin-sdk": "2.21.2",
+    "@medusajs/caching-redis": "2.21.2",
+    "@medusajs/cli": "2.21.2",
+    "@medusajs/framework": "2.21.2",
+    "@medusajs/medusa": "2.21.2"
+  },
+  "devDependencies": {
+    "@swc/core": "1.11.31",
+    "@types/node": "26.6.4",
+    "@types/react": "18.3.31",
+    "@types/react-dom": "18.3.7",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3",
+    "vite": "6.4.3"
+  }
+}

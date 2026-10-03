@@ -1,0 +1,25 @@
+{
+  "name": "amoon-collection",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/storefront",
+    "apps/medusa"
+  ],
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "dev:storefront": "npm run dev --workspace @amoon/storefront",
+    "dev:medusa": "npm run dev --workspace @amoon/medusa",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "build": "npm run build --workspaces",
+    "db:migrate": "npm run db:migrate --workspace @amoon/medusa"
+  },
+  "devDependencies": {
+    "eslint": "10.12.0",
+    "typescript-eslint": "8.71.0"
+  }
+}

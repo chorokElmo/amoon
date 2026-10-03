@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #f8f5f0;
+  --color-ink: #24221f;
+  --color-taupe: #827569;
+}
+
+body { margin: 0; background: var(--color-cream); color: var(--color-ink); font-family: Arial, sans-serif; }
+::selection { background: #ddcfc0; }
+*:focus-visible { outline: 2px solid var(--color-taupe); outline-offset: 4px; }

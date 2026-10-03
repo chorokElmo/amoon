@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.medusa/
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+coverage/
+backups/
+static/*
+!static/.gitkeep

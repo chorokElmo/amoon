@@ -1,0 +1,114 @@
+name: amoon-collection
+
+x-medusa-env: &medusa-env
+  NODE_ENV: production
+  DATABASE_URL: postgres://${POSTGRES_USER:-amoon}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-amoon}
+  REDIS_URL: redis://redis:6379
+  JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+  COOKIE_SECRET: ${COOKIE_SECRET:?Set COOKIE_SECRET}
+  STORE_CORS: ${STORE_CORS:-http://localhost:8000}
+  ADMIN_CORS: ${ADMIN_CORS:-http://localhost:9000}
+  AUTH_CORS: ${AUTH_CORS:-http://localhost:8000,http://localhost:9000}
+  MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL:-http://localhost:9000}
+
+x-medusa: &medusa
+  image: amoon-medusa:local
+  build:
+    context: .
+    dockerfile: apps/medusa/Dockerfile
+    args:
+      MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL:-http://localhost:9000}
+  init: true
+  volumes:
+    - media:/app/static
+
+services:
+  postgres:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-amoon}
+      POSTGRES_DB: ${POSTGRES_DB:-amoon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  redis:
+    image: redis:7-bookworm
+    command: [redis-server, --appendonly, 'yes', --maxmemory-policy, noeviction]
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  migrate:
+    <<: *medusa
+    restart: 'no'
+    command: [npm, run, db:migrate]
+    environment:
+      <<: *medusa-env
+      MEDUSA_WORKER_MODE: shared
+      DISABLE_MEDUSA_ADMIN: 'true'
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+  medusa:
+    <<: *medusa
+    restart: unless-stopped
+    environment:
+      <<: *medusa-env
+      MEDUSA_WORKER_MODE: server
+      DISABLE_MEDUSA_ADMIN: 'false'
+    ports:
+      - '127.0.0.1:9000:9000'
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://localhost:9000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      start_period: 90s
+      retries: 10
+  worker:
+    <<: *medusa
+    restart: unless-stopped
+    environment:
+      <<: *medusa-env
+      MEDUSA_WORKER_MODE: worker
+      DISABLE_MEDUSA_ADMIN: 'true'
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  storefront:
+    build:
+      context: .
+      dockerfile: apps/storefront/Dockerfile
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      STOREFRONT_URL: ${STOREFRONT_URL:-http://localhost:8000}
+      MEDUSA_INTERNAL_URL: http://medusa:9000
+      MEDUSA_PUBLISHABLE_KEY: ${MEDUSA_PUBLISHABLE_KEY:-}
+      WHATSAPP_NUMBER: ${WHATSAPP_NUMBER:-}
+    ports:
+      - '127.0.0.1:8000:8000'
+    depends_on:
+      medusa: {condition: service_healthy}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://localhost:8000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+volumes:
+  postgres-data:
+  redis-data:
+  media:
