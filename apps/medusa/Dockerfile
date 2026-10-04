@@ -17,7 +17,7 @@ ENV NODE_ENV=production PORT=9000
 COPY --from=build --chown=node:node /workspace/node_modules ./node_modules
 COPY --from=build --chown=node:node /workspace/apps/medusa/node_modules ./node_modules
 COPY --from=build --chown=node:node /workspace/apps/medusa/.medusa/server ./
-RUN mkdir -p static && chown node:node static
+RUN mkdir -p static && chown node:node /app static
 USER node
 EXPOSE 9000
 CMD ["npm", "run", "start"]

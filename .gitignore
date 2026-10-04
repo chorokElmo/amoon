@@ -6,6 +6,10 @@ node_modules/
 !.env.example
 *.tsbuildinfo
 coverage/
+.catalog-setup.json
 backups/
+.local/
 static/*
 !static/.gitkeep
+apps/medusa/static/*
+!apps/medusa/static/.gitkeep

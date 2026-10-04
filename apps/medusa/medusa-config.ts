@@ -16,7 +16,11 @@ function secret(name: string): string {
 
 const workerMode = process.env.MEDUSA_WORKER_MODE || "shared";
 if (!["shared", "server", "worker"].includes(workerMode)) throw new Error("Invalid MEDUSA_WORKER_MODE");
-const redisUrl = required("REDIS_URL");
+const localInfrastructure = process.env.MEDUSA_LOCAL_INFRASTRUCTURE === "true";
+if (localInfrastructure && (process.env.NODE_ENV === "production" || workerMode === "worker")) {
+  throw new Error("Local infrastructure is development-only and cannot run a separate worker");
+}
+const redisUrl = localInfrastructure ? undefined : required("REDIS_URL");
 
 module.exports = defineConfig({
   projectConfig: {
@@ -29,7 +33,15 @@ module.exports = defineConfig({
     }
   },
   admin: { disable: process.env.DISABLE_MEDUSA_ADMIN === "true", backendUrl: process.env.MEDUSA_BACKEND_URL },
-  modules: [
+  modules: localInfrastructure ? [
+    { resolve: "@medusajs/medusa/fulfillment", options: { providers: [{ resolve: "@medusajs/medusa/fulfillment-manual", id: "manual" }] } },
+    { resolve: "@medusajs/medusa/caching", options: { in_memory: { enable: true } } },
+    { resolve: "@medusajs/medusa/event-bus-local" },
+    { resolve: "@medusajs/medusa/workflow-engine-inmemory" },
+    { resolve: "@medusajs/medusa/file", options: { providers: [{ resolve: "@medusajs/medusa/file-local", id: "local", options: { backend_url: "http://localhost:9001/static" } }] } }
+  ] : [
+    { resolve: "@medusajs/medusa/file", options: { providers: [{ resolve: "@medusajs/medusa/file-local", id: "local", options: { backend_url: required("MEDUSA_BACKEND_URL").replace(/\/$/, "") + "/static" } }] } },
+    { resolve: "@medusajs/medusa/fulfillment", options: { providers: [{ resolve: "@medusajs/medusa/fulfillment-manual", id: "manual" }] } },
     { resolve: "@medusajs/medusa/caching", options: { providers: [{ resolve: "@medusajs/caching-redis", id: "caching-redis", is_default: true, options: { redisUrl } }] } },
     { resolve: "@medusajs/medusa/event-bus-redis", options: { redisUrl } },
     { resolve: "@medusajs/medusa/workflow-engine-redis", options: { redis: { redisUrl } } },

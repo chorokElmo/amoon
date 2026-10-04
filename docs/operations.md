@@ -2,7 +2,7 @@
 
 ## First deployment
 
-Install Docker Engine and Compose v2 on Ubuntu. Use a trusted repository checkout. Set root `.env` permissions to 600. Generate three independent URL-safe secrets with `openssl rand -hex 32` for PostgreSQL, JWT and cookies. Set the actual HTTPS storefront and API origins and matching CORS lists. Admin uses `MEDUSA_BACKEND_URL` at build time; rebuild when it changes.
+This is a future Ubuntu deployment runbook; Docker remains off for current development. Install Docker Engine and Compose v2 only when moving to that environment. Use a trusted repository checkout. Set root `.env` permissions to 600. Generate four independent URL-safe secrets with `openssl rand -hex 32` for PostgreSQL, JWT, Medusa cookies and storefront cart/receipt signing. Set the actual HTTPS storefront and API origins and matching CORS lists. Admin uses `MEDUSA_BACKEND_URL` at build time; rebuild when it changes. Run `npm run check:release` before deployment; it checks configuration only.
 
 ```sh
 npm ci
@@ -23,7 +23,7 @@ Create an owner through the official Medusa CLI in the running API container (su
 docker compose exec medusa npx medusa user -e owner@example.com -p 'YOUR_STRONG_UNIQUE_PASSWORD'
 ```
 
-Open `/app` on the API origin and set up store, Morocco region/MAD, sales channel and publishable key. Copy the key to root `.env` and recreate storefront. Phase 8 supplies the complete commerce setup; Phase 1 has not configured shipping or COD yet.
+Open `/app` on the API origin and review the store, Morocco region/MAD, sales channel and publishable key. Keep credentials in ignored environment files. Free Morocco delivery and manual COD are configured locally; see [the owner Admin guide](owner-admin-guide.md) for dispatch, inventory and order operations and remaining live verification. Production configuration must be checked separately.
 
 ## Reverse proxy
 
@@ -43,6 +43,10 @@ docker compose up -d
 `medusa db:migrate` runs migrations and link synchronization. Do not manually edit Medusa tables. Rollback may require restoring the pre-update backup and previous image; arbitrary down-migrations are not assumed safe.
 
 ## Backups and restoration
+
+For the current native Windows environment, run `npm run backup:native -- --verify-restore` from the project directory. It saves database/media under ignored `.local/backups` and restores into a separate uniquely named database without overwriting the live store. Keep the resulting manifest and archive private. This does not configure recurring or encrypted off-site backups. See [Phase 11 verification](phase-11-verification.md).
+
+Native PostgreSQL is version 18; the original fresh Compose template is version 16. Before importing native data, choose a compatible PostgreSQL 18-or-newer target and verify the actual migration. Do not assume an 18 archive restores into 16, and never point a newer database binary at an existing older-major data volume without a supported migration.
 
 Run encrypted daily off-server PostgreSQL backups and back up the media volume. Keep `.env` separately in a secret store. On Ubuntu:
 

@@ -16,7 +16,17 @@
     "lint": "npm run lint --workspaces",
     "typecheck": "npm run typecheck --workspaces",
     "build": "npm run build --workspaces",
-    "db:migrate": "npm run db:migrate --workspace @amoon/medusa"
+    "db:migrate": "npm run db:migrate --workspace @amoon/medusa",
+    "setup:local": "node scripts/setup-local.mjs",
+    "prepare:local": "node scripts/prepare-local.mjs",
+    "setup:native": "node scripts/setup-native.mjs",
+    "dev:native": "node scripts/dev-native.mjs",
+    "invite:native": "node scripts/invite-native.mjs",
+    "configure:checkout": "node scripts/configure-checkout.mjs",
+    "check:operations": "node scripts/check-operations.mjs",
+    "qa:native": "node scripts/qa-native.mjs",
+    "backup:native": "node scripts/backup-native.mjs",
+    "check:release": "node scripts/check-release.mjs"
   },
   "devDependencies": {
     "eslint": "10.12.0",

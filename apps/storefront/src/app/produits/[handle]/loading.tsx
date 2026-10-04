@@ -1,0 +1,1 @@
+export default function ProductLoading() { return <section className="container product-detail" aria-busy="true"><p role="status">Chargement de la pièce…</p><div className="product-detail-layout catalog-skeleton-grid" aria-hidden="true"><div/><div/></div></section>; }

@@ -3,6 +3,8 @@
 **/.medusa
 **/.env
 **/.env.*
+**/.catalog-setup.json
+**/.local
 **/*.tsbuildinfo
 .git
 backups

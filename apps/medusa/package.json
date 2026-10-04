@@ -7,6 +7,7 @@
     "build": "node scripts/build.mjs",
     "start": "medusa start",
     "db:migrate": "medusa db:migrate",
+    "setup:catalog": "medusa exec ./src/scripts/setup-catalog.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },

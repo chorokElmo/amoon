@@ -1,0 +1,1 @@
+export default function LoadingCart() { return <section className="container cart-page" aria-busy="true"><p className="eyebrow">Amoon Collection</p><h1>Votre panier</h1><p role="status">Chargement de votre panier…</p></section>; }
