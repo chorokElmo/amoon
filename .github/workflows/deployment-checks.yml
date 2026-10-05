@@ -1,0 +1,28 @@
+name: Deployment checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  linux-deployment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: node --test scripts/server-check.test.mjs
+      - run: npm run test:catalog --workspace @amoon/storefront
+      - name: Validate production configuration and build Linux images
+        run: |
+          bash -n scripts/server-init.sh
+          bash -n scripts/server.sh
+          bash scripts/server-init.sh shop.example.com api.example.com
+          docker compose --env-file .env.production -f docker-compose.production.yml config --quiet
+          docker compose --env-file .env.production -f docker-compose.production.yml build

@@ -60,9 +60,12 @@ creates no sample merchandise, customers or orders. Existing Admin users are
 preserved; sign in using your own account. Old browser carts/sessions are not
 transferred because the new server uses new signing secrets.
 
-For transferred photographs, review any product image URLs still pointing to
-`localhost:9001`. Re-upload those photographs in the new Admin so the saved URLs
-use the new public API domain. The private media backup retains the original files.
+For transferred photographs, the generated `LEGACY_MEDIA_ORIGINS` maps known old
+localhost `/static/` URLs to the new internal media server after restoring the files.
+This preserves image records without editing the database or fetching localhost on
+the customer's computer. Only explicitly listed old origins and `/static/` paths
+are remapped. Existing environment files need this setting added manually if needed.
+Future uploads use the public API domain. The private backup retains original files.
 Verify actual product photos, MAD prices, inventory and saved orders before launch.
 
 ## Option B: create a fresh store
@@ -80,6 +83,42 @@ Create and publish your real products in Admin and assign the Amoon Storefront
 sales channel. Add actual stock locations/dispatch details and verify fulfillment.
 
 ## Verify and maintain
+
+For a fresh store, the complete setup can also run as:
+
+```bash
+bash scripts/server.sh install your-own-email@example.com
+```
+
+This builds, starts, configures the real catalog and free delivery/COD, saves a
+private Admin invitation and runs live diagnostics. Transfer an existing store
+using Option A instead. If initialization already exists, do not regenerate secrets.
+
+The bundled Admin now requests the API at its own browser origin (`/`), preventing
+an old localhost build address from following the application to a new domain.
+Only set `MEDUSA_ADMIN_BACKEND_URL` when deliberately hosting Admin separately.
+Keep `MEDUSA_BACKEND_URL` as the public API origin for uploaded file URLs.
+Previously built Admin images require one rebuild to receive this portability fix.
+
+Medusa container builds use local infrastructure only inside the build process,
+so compilation does not depend on a live PostgreSQL/Redis server. Runtime containers
+still use the production PostgreSQL/Redis configuration. GitHub's Deployment checks
+workflow builds Linux images and runs validation after code is pushed; review its
+result before deploying. A configured workflow is not proof that it has passed.
+
+```bash
+bash scripts/server.sh doctor
+```
+
+Doctor checks production origins, independent credentials, matching CORS, catalog
+configuration, live health endpoints, the email/password login provider and the
+storefront's permitted authentication origin. It prints no passwords or tokens.
+It requires the configured domains/DNS/HTTPS to be reachable from the server.
+For non-Docker hosting with Node installed, run
+`node scripts/server-check.mjs --env YOUR_ENV_FILE`. Set real production secrets,
+PostgreSQL/Redis URLs and public origins; build the applications and supervise
+their processes with your hosting provider. Do not run the Windows native runner
+as a production service. A serverless-only host is not sufficient for this full stack.
 
 ```bash
 bash scripts/server.sh status

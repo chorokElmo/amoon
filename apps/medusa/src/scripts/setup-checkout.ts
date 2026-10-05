@@ -1,6 +1,6 @@
 import type { ExecArgs } from "@medusajs/framework/types";
 import { Modules, ContainerRegistrationKeys } from "@medusajs/framework/utils";
-import { createStockLocationsWorkflow, linkSalesChannelsToStockLocationWorkflow, createLocationFulfillmentSetWorkflow, createServiceZonesWorkflow, createShippingOptionsWorkflow, updateRegionsWorkflow } from "@medusajs/medusa/core-flows";
+import { createStockLocationsWorkflow, linkSalesChannelsToStockLocationWorkflow, createLocationFulfillmentSetWorkflow, createServiceZonesWorkflow, createShippingOptionsWorkflow, createShippingProfilesWorkflow, updateRegionsWorkflow } from "@medusajs/medusa/core-flows";
 import { readFile } from "node:fs/promises";
 export default async function setupCheckout({ container }: ExecArgs) {
   if (process.env.AMOON_DELIVERY_FEE !== "0") throw new Error("Owner-approved free delivery requires AMOON_DELIVERY_FEE=0.");
@@ -30,7 +30,11 @@ export default async function setupCheckout({ container }: ExecArgs) {
   const zones = await fulfillment.listServiceZones({ fulfillment_set: { id: set.id }, name: "Maroc" });
   if (zones.length > 1) throw new Error("Review duplicate Morocco zones.");
   const zone = zones[0] || (await createServiceZonesWorkflow(container).run({ input: { data: [{ name: "Maroc", fulfillment_set_id: set.id, geo_zones: [{ type: "country", country_code: "ma" }] }] } })).result[0];
-  const profiles = await fulfillment.listShippingProfiles({ type: "default" });
+  let profiles = await fulfillment.listShippingProfiles({ type: "default" });
+  if (!profiles.length) {
+    await createShippingProfilesWorkflow(container).run({ input: { data: [{ name: "Amoon default shipping", type: "default" }] } });
+    profiles = await fulfillment.listShippingProfiles({ type: "default" });
+  }
   if (profiles.length !== 1) throw new Error("One default shipping profile required.");
   const options = await fulfillment.listShippingOptions({ service_zone: { id: zone.id }, name: "Livraison gratuite au Maroc" });
   if (options.length > 1) throw new Error("Review duplicate delivery options.");

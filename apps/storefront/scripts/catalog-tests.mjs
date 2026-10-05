@@ -26,6 +26,14 @@ const { parseCustomer, proof, validProof } = require(join(scratch, "checkout-mod
 const { medusaCheckout, orderReceipt, reviewData } = require(join(scratch, "medusa-checkout.js"));
 const { siteOrigin, productSchema, serializeJsonLd } = require(join(scratch, "seo.js"));
 const { setAnalyticsConsent, trackPageView } = require(join(scratch, "analytics.js"));
+test("restored localhost media resolves to internal storage without changing product records", () => {
+  const backend = "http://medusa:9000";
+  assert.equal(mediaTarget("http://localhost:9001/static/real-photo.jpg", backend, "", "http://localhost:9001").href, backend + "/static/real-photo.jpg");
+  assert.equal(mediaTarget("http://localhost:9001/static/real-photo.jpg", backend, ""), null);
+});
+test("legacy media mapping cannot reach admin routes, other origins or credential URLs", () => {
+  for (const url of ["http://localhost:9001/admin/users", "http://localhost:9001/static/../admin/users", "http://localhost:9002/static/photo.jpg", "http://user:pass@localhost:9001/static/photo.jpg"]) assert.equal(mediaTarget(url, "http://medusa:9000", "", "http://localhost:9001"), null);
+});
 test("SEO rejects credential/path origins and escapes script injection", () => {
   assert.equal(siteOrigin("https://shop.example"), "https://shop.example");
   for (const value of ["javascript:alert(1)", "https://user:pass@shop.example", "https://shop.example/private", "invalid"]) assert.throws(() => siteOrigin(value));

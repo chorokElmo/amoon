@@ -9,7 +9,7 @@ COPY apps/medusa apps/medusa
 ARG MEDUSA_BACKEND_URL
 ENV MEDUSA_BACKEND_URL=$MEDUSA_BACKEND_URL
 # Build-only values; never used as runtime credentials.
-RUN DATABASE_URL=postgres://build:build@localhost/build REDIS_URL=redis://localhost:6379 JWT_SECRET=build-only-unused-secret-000000000000 COOKIE_SECRET=build-only-unused-secret-111111111111 STORE_CORS=http://localhost ADMIN_CORS=http://localhost AUTH_CORS=http://localhost npm run build --workspace @amoon/medusa
+RUN MEDUSA_LOCAL_INFRASTRUCTURE=true DATABASE_URL=postgres://build:build@localhost/build REDIS_URL=redis://localhost:6379 JWT_SECRET=build-only-unused-secret-000000000000 COOKIE_SECRET=build-only-unused-secret-111111111111 STORE_CORS=http://localhost ADMIN_CORS=http://localhost AUTH_CORS=http://localhost npm run build --workspace @amoon/medusa
 
 FROM node:22-bookworm-slim AS runtime
 WORKDIR /app
