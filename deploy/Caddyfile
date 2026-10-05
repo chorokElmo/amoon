@@ -1,0 +1,11 @@
+{$STOREFRONT_DOMAIN} {
+    encode zstd gzip
+    reverse_proxy storefront:8000
+}
+
+{$API_DOMAIN} {
+    request_body {
+        max_size 12MB
+    }
+    reverse_proxy medusa:9000
+}

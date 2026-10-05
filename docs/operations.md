@@ -1,5 +1,9 @@
 # Ubuntu operations
 
+For a new server, use [the automated production guide](new-server.md) and
+`docker-compose.production.yml`. The instructions below describe the older base
+Compose/manual-proxy workflow; do not combine its volumes with the production stack.
+
 ## First deployment
 
 This is a future Ubuntu deployment runbook; Docker remains off for current development. Install Docker Engine and Compose v2 only when moving to that environment. Use a trusted repository checkout. Set root `.env` permissions to 600. Generate four independent URL-safe secrets with `openssl rand -hex 32` for PostgreSQL, JWT, Medusa cookies and storefront cart/receipt signing. Set the actual HTTPS storefront and API origins and matching CORS lists. Admin uses `MEDUSA_BACKEND_URL` at build time; rebuild when it changes. Run `npm run check:release` before deployment; it checks configuration only.

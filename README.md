@@ -1,5 +1,9 @@
 # Amoon Collection
 
+**New server installation:** follow [the production setup guide](docs/new-server.md).
+It includes a separate PostgreSQL 18/Redis/HTTPS Compose stack, secure environment
+generation, existing-store transfer, owner invitations and private backups.
+
 Self-hosted French fashion commerce project. **Phases 1–7 implemented:** infrastructure, responsive storefront, editorial homepage, Medusa-connected catalog, actual product pages and persistent Medusa carts with quantity updates, removal and backend totals. Homepage and shop use actual Medusa data only; invented products, prices and imagery are not displayed. Checkout includes Moroccan address validation, real delivery choices, manual cash on delivery and backend order completion with a protected confirmation page. A subsequent read-only audit found order #1 persisted at 150 MAD with free delivery and COD metadata. Browser receipt/recovery and actual fulfillment/cash collection still need verification; setup creates no sample orders or customer details.
 
 ## Development

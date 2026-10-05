@@ -8,3 +8,4 @@
 **/*.tsbuildinfo
 .git
 backups
+apps/medusa/static
