@@ -1,7 +1,7 @@
 export type SearchParams = Record<string, string | string[] | undefined>;
 export type Stock = "in_stock" | "backorder" | "out_of_stock" | "unknown";
 export type CatalogVariant = { id: string; title: string; options: { name: string; value: string }[]; sku: string | null; sizes: string[]; colors: string[]; price: number | null; originalPrice: number | null; stock: Stock };
-export type CatalogProduct = { id: string; handle: string; title: string; description: string; thumbnail: string | null; images: string[]; sizeGuide: string | null; createdAt: number; popularity: number | null; categoryIds: string[]; collectionId: string | null; variants: CatalogVariant[] };
+export type CatalogProduct = { id: string; handle: string; title: string; description: string; composition?: string | null; thumbnail: string | null; images: string[]; sizeGuide: string | null; createdAt: number; popularity: number | null; categoryIds: string[]; collectionId: string | null; variants: CatalogVariant[] };
 export type CatalogGroup = { id: string; handle: string; name: string; description: string; parentId: string | null };
 export type CatalogData = { products: CatalogProduct[]; categories: CatalogGroup[]; collections: CatalogGroup[] };
 export const sortChoices = { newest: "Nouveautés", price_asc: "Prix croissant", price_desc: "Prix décroissant", popular: "Populaires" } as const;
@@ -43,7 +43,7 @@ export function normalizeProduct(value: unknown): CatalogProduct {
   });
   const rank = amount(record(product.metadata).popularity_rank);
   const images = [...new Set([text(product.thumbnail), ...list(product.images).map(image => text(record(image).url))].filter(Boolean))];
-  return { id: text(product.id), handle: text(product.handle), title: text(product.title), description: text(product.description), thumbnail: images[0] || null, images, sizeGuide: text(record(product.metadata).size_guide).trim().slice(0, 10000) || null, createdAt: Date.parse(text(product.created_at)) || 0, popularity: rank, categoryIds: list(product.categories).map(item => text(record(item).id)).filter(Boolean), collectionId: text(product.collection_id) || text(record(product.collection).id) || null, variants };
+  return { id: text(product.id), handle: text(product.handle), title: text(product.title), description: text(product.description), composition: text(record(product.metadata).composition).trim().slice(0, 10000) || null, thumbnail: images[0] || null, images, sizeGuide: text(record(product.metadata).size_guide).trim().slice(0, 10000) || null, createdAt: Date.parse(text(product.created_at)) || 0, popularity: rank, categoryIds: list(product.categories).map(item => text(record(item).id)).filter(Boolean), collectionId: text(product.collection_id) || text(record(product.collection).id) || null, variants };
 }
 
 export function parseFilters(params: SearchParams, defaultSort: Filters["sort"] = "newest"): Filters {

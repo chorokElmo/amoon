@@ -340,6 +340,23 @@ test("checkout proof rejects altered totals, quantities, addresses, key and expi
   assert.equal(validProof(token,state,"z".repeat(64)),false);assert.equal(validProof(token,state,checkoutSecret,(expires+1)*1000),false);
   assert.equal(validProof("bad",state,checkoutSecret),false);
 });
+test("checkout accepts full Moroccan names without email and defaults country to Morocco",()=>{
+  const input={full_name:"  Salma   El Amrani  ",address:{phone:"06 70 00 00 00",city:"Casablanca",address_1:"Quartier, rue, résidence",address_2:""}};
+  const customer=parseCustomer(input);
+  assert.equal(customer.email,null);assert.equal(customer.address.first_name,"Salma");assert.equal(customer.address.last_name,"El Amrani");assert.equal(customer.address.country_code,"ma");assert.equal(customer.address.postal_code,"");
+  assert.equal(parseCustomer({...input,full_name:"Salma"}).address.last_name,"");
+  for(const full_name of [""," ","S","Salma\nAmrani","x".repeat(162)])assert.throws(()=>parseCustomer({...input,full_name}));
+});
+test("email-free checkout clears old email, signs review and completes COD without fabricating email",async()=>{
+  const h=checkoutHarness({cart:{email:"previous@example.test"}});
+  const input={full_name:"Salma El Amrani",address:{phone:"0670000000",city:"Casablanca",address_1:"Quartier, rue, résidence",address_2:""}};
+  const addressed=await h.service.address("cart_real",input);
+  assert.equal(addressed.customer.email,null);
+  const update=h.calls.find(c=>c.method==="POST"&&c.path==="/store/carts/cart_real");assert.equal(update.body.email,null);
+  const state=await h.service.shipping("cart_real","so_free");assert.ok(state.review);
+  const receipt=await h.service.complete("cart_real",state.review,true);assert.equal(receipt.id,"order_created");assert.equal(h.completions,1);
+  assert.equal(codIssue({total:150,email:null,shipping_address:addressed.customer.address,shipping_methods:[{id:"shipping_real"}],payment_collection:{amount:150,payment_sessions:[{provider_id:"pp_system_default",status:"pending",amount:150,currency_code:"mad"}]}}),null);
+});
 test("checkout saves normalized addresses and selects only real backend delivery choices",async()=>{
   const h=checkoutHarness();const state=await h.service.address("cart_real",checkoutCustomer());
   assert.equal(state.customer.address.phone,"+212670000000");assert.equal(state.review,null);assert.equal(state.options[0].amount,0);

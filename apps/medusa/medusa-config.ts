@@ -32,7 +32,11 @@ module.exports = defineConfig({
       jwtSecret: secret("JWT_SECRET"), cookieSecret: secret("COOKIE_SECRET")
     }
   },
-  admin: { disable: process.env.DISABLE_MEDUSA_ADMIN === "true", backendUrl: process.env.MEDUSA_BACKEND_URL },
+  admin: {
+    disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
+    backendUrl: process.env.MEDUSA_BACKEND_URL,
+    maxUploadFileSize: 10 * 1024 * 1024
+  },
   modules: localInfrastructure ? [
     { resolve: "@medusajs/medusa/fulfillment", options: { providers: [{ resolve: "@medusajs/medusa/fulfillment-manual", id: "manual" }] } },
     { resolve: "@medusajs/medusa/caching", options: { in_memory: { enable: true } } },

@@ -8,5 +8,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Avoid silently publishing an incomplete sitemap during a backend outage.
   if (!catalog.ok) throw new Error("Catalog unavailable for sitemap.");
   const groups = [...catalog.data.categories.map(g => "/collections/" + encodeURIComponent(g.handle)), ...catalog.data.collections.map(g => "/collections/" + encodeURIComponent(g.handle) + (catalog.data.categories.some(c => c.handle === g.handle) ? "?univers=collection" : ""))];
-  return [...new Set(["/", "/boutique", "/collections", "/nouveautes", "/contact", ...groups, ...catalog.data.products.map(p => productPath(p.handle))])].map(path => ({ url: origin + path }));
+  return [...new Set(["/", "/boutique", "/collections", "/nouveautes", "/contact", "/informations", ...groups, ...catalog.data.products.map(p => productPath(p.handle))])].map(path => ({ url: origin + path }));
 }

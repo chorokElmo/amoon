@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     if (!response.ok || !type || !["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif"].includes(type)) return new Response(null, { status: 502 });
     const reader = response.body?.getReader(); if (!reader) return new Response(null, { status: 502 });
     const chunks: Uint8Array[] = []; let bytes = 0;
-    while (true) { const { done, value } = await reader.read(); if (done) break; bytes += value.byteLength; if (bytes > 8 * 1024 * 1024) { await reader.cancel(); return new Response(null, { status: 413 }); } chunks.push(value); }
+    while (true) { const { done, value } = await reader.read(); if (done) break; bytes += value.byteLength; if (bytes > 10 * 1024 * 1024) { await reader.cancel(); return new Response(null, { status: 413 }); } chunks.push(value); }
     return new Response(Buffer.concat(chunks), { headers: { "Content-Type": type, "Cache-Control": "public, max-age=300", "X-Content-Type-Options": "nosniff" } });
   } catch { return new Response(null, { status: 502 }); }
 }
