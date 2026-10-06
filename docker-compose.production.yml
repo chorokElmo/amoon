@@ -1,135 +1,219 @@
-# Separate project/volumes: never upgrades an existing PostgreSQL 16 volume.
-name: amoon-production
+name: amoon-collection
 
 x-medusa-env: &medusa-env
   NODE_ENV: production
-  DATABASE_URL: postgres://${POSTGRES_USER:-amoon}:${POSTGRES_PASSWORD:?Generate .env.production}@postgres:5432/${POSTGRES_DB:-amoon}
+  DATABASE_URL: postgres://${POSTGRES_USER:-amoon}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-amoon}?sslmode=disable
   REDIS_URL: redis://redis:6379
-  JWT_SECRET: ${JWT_SECRET:?Generate .env.production}
-  COOKIE_SECRET: ${COOKIE_SECRET:?Generate .env.production}
-  STORE_CORS: ${STORE_CORS:?Set storefront HTTPS origin}
-  ADMIN_CORS: ${ADMIN_CORS:?Set API HTTPS origin}
-  AUTH_CORS: ${AUTH_CORS:?Set both HTTPS origins}
-  MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL:?Set API HTTPS origin}
-  MEDUSA_DISABLE_TELEMETRY: 'true'
+
+  JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+  COOKIE_SECRET: ${COOKIE_SECRET:?Set COOKIE_SECRET}
+
+  STORE_CORS: ${STORE_CORS:?Set STORE_CORS}
+  ADMIN_CORS: ${ADMIN_CORS:?Set ADMIN_CORS}
+  AUTH_CORS: ${AUTH_CORS:?Set AUTH_CORS}
+  MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL:?Set MEDUSA_BACKEND_URL}
 
 x-medusa: &medusa
-  image: amoon-medusa:production
+  image: amoon-medusa:local
   build:
     context: .
     dockerfile: apps/medusa/Dockerfile
     args:
-      MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL:?Set API HTTPS origin}
+      MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL:?Set MEDUSA_BACKEND_URL}
+
   init: true
+
   volumes:
-    - media:/app/static
+    - /srv/hosting/clients/client001/amoon/media:/app/static:Z
+
+  networks:
+    - internal
 
 services:
+
   postgres:
-    image: postgres:18-bookworm
+    image: postgres:16-bookworm
     restart: unless-stopped
+
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-amoon}
       POSTGRES_DB: ${POSTGRES_DB:-amoon}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate .env.production}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+
     volumes:
-      - postgres-data:/var/lib/postgresql
+      - /srv/hosting/clients/client001/amoon/postgres:/var/lib/postgresql/data:Z
+
+    networks:
+      - internal
+
     healthcheck:
-      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      test:
+        [
+          "CMD-SHELL",
+          'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"'
+        ]
       interval: 5s
       timeout: 5s
-      retries: 30
+      retries: 20
+
+
   redis:
     image: redis:7-bookworm
-    command: [redis-server, --appendonly, 'yes', --maxmemory-policy, noeviction]
+
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory-policy",
+        "noeviction"
+      ]
+
     restart: unless-stopped
-    volumes: [redis-data:/data]
+
+    volumes:
+      - /srv/hosting/clients/client001/amoon/redis:/data:Z
+
+    networks:
+      - internal
+
     healthcheck:
-      test: [CMD, redis-cli, ping]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
-      retries: 30
+      retries: 20
+
+
   migrate:
     <<: *medusa
-    restart: 'no'
-    command: [npm, run, db:migrate]
+
+    restart: "no"
+
+    command:
+      - npm
+      - run
+      - db:migrate
+
     environment:
       <<: *medusa-env
       MEDUSA_WORKER_MODE: shared
-      DISABLE_MEDUSA_ADMIN: 'true'
+      DISABLE_MEDUSA_ADMIN: "true"
+
     depends_on:
-      postgres: {condition: service_healthy}
-      redis: {condition: service_healthy}
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+
   medusa:
     <<: *medusa
+
     restart: unless-stopped
+
     environment:
       <<: *medusa-env
       MEDUSA_WORKER_MODE: server
-      DISABLE_MEDUSA_ADMIN: 'false'
+      DISABLE_MEDUSA_ADMIN: "false"
+
+    # No host port
+    # ports:
+    #   - "127.0.0.1:9000:9000"
+
+    networks:
+      - internal
+      - proxy
+
     depends_on:
-      migrate: {condition: service_completed_successfully}
+      migrate:
+        condition: service_completed_successfully
+
     healthcheck:
-      test: [CMD, node, -e, "fetch('http://localhost:9000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:9000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
       interval: 15s
       timeout: 5s
-      start_period: 120s
-      retries: 20
+      start_period: 90s
+      retries: 10
+
+
   worker:
     <<: *medusa
+
     restart: unless-stopped
+
     environment:
       <<: *medusa-env
       MEDUSA_WORKER_MODE: worker
-      DISABLE_MEDUSA_ADMIN: 'true'
+      DISABLE_MEDUSA_ADMIN: "true"
+
     depends_on:
-      migrate: {condition: service_completed_successfully}
+      migrate:
+        condition: service_completed_successfully
+
+
   storefront:
     build:
       context: .
       dockerfile: apps/storefront/Dockerfile
+
     restart: unless-stopped
     init: true
+
     environment:
       NODE_ENV: production
-      STOREFRONT_URL: ${STOREFRONT_URL:?Set storefront HTTPS origin}
+
+      STOREFRONT_URL: ${STOREFRONT_URL:?Set STOREFRONT_URL}
+
+      # Internal Docker communication:
       MEDUSA_INTERNAL_URL: http://medusa:9000
+
       MEDUSA_PUBLISHABLE_KEY: ${MEDUSA_PUBLISHABLE_KEY:-}
       MEDUSA_REGION_ID: ${MEDUSA_REGION_ID:-}
       MEDUSA_SALES_CHANNEL_ID: ${MEDUSA_SALES_CHANNEL_ID:-}
-      CART_COOKIE_SECRET: ${CART_COOKIE_SECRET:?Generate .env.production}
-      PRODUCT_IMAGE_ORIGINS: ${PRODUCT_IMAGE_ORIGINS:?Set public API origin}
-      LEGACY_MEDIA_ORIGINS: ${LEGACY_MEDIA_ORIGINS:-}
+
+      CART_COOKIE_SECRET: ${CART_COOKIE_SECRET:?Set CART_COOKIE_SECRET}
+
+      PRODUCT_IMAGE_ORIGINS: ${PRODUCT_IMAGE_ORIGINS:-}
       WHATSAPP_NUMBER: ${WHATSAPP_NUMBER:-}
-      HOMEPAGE_DEMO: 'false'
+      HOMEPAGE_DEMO: ${HOMEPAGE_DEMO:-false}
       NEWSLETTER_SUBSCRIBE_URL: ${NEWSLETTER_SUBSCRIBE_URL:-}
       NEWSLETTER_API_TOKEN: ${NEWSLETTER_API_TOKEN:-}
+
+    # No host port
+    # ports:
+    #   - "127.0.0.1:8000:8000"
+
+    networks:
+      - internal
+      - proxy
+
     depends_on:
-      medusa: {condition: service_healthy}
+      medusa:
+        condition: service_healthy
+
     healthcheck:
-      test: [CMD, node, -e, "fetch('http://localhost:8000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:8000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
       interval: 15s
       timeout: 5s
-      start_period: 60s
-      retries: 10
-  proxy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    environment:
-      STOREFRONT_DOMAIN: ${STOREFRONT_DOMAIN:?Set storefront domain}
-      API_DOMAIN: ${API_DOMAIN:?Set API domain}
-    ports: ['80:80', '443:443', '443:443/udp']
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy-data:/data
-      - caddy-config:/config
-    depends_on:
-      medusa: {condition: service_healthy}
-      storefront: {condition: service_healthy}
+      start_period: 30s
+      retries: 5
 
-volumes:
-  postgres-data:
-  redis-data:
-  media:
-  caddy-data:
-  caddy-config:
+
+networks:
+  internal:
+    driver: bridge
+
+  proxy:
+    external: true
