@@ -400,3 +400,11 @@ test("backend COD validation compares payment amounts inside the completion snap
   const customer=parseCustomer(checkoutCustomer());const c={total:150,email:customer.email,shipping_address:customer.address,shipping_methods:[{id:"casm_actual"}],payment_collection:{amount:150,payment_sessions:[{provider_id:"pp_system_default",status:"pending",amount:150,currency_code:"mad"}]}};
   assert.equal(codIssue(c),null); const { BigNumber } = require("@medusajs/utils"); assert.equal(codIssue({...c,total:new BigNumber(150),payment_collection:{amount:new BigNumber(150),payment_sessions:[{provider_id:"pp_system_default",status:"pending",amount:new BigNumber(150),currency_code:"mad"}]}}),null);assert.ok(codIssue({...c,total:300}));assert.ok(codIssue({...c,shipping_methods:[]}));assert.ok(codIssue({...c,shipping_address:{...customer.address,country_code:"fr"}}));assert.ok(codIssue({...c,payment_collection:{amount:150,payment_sessions:[{provider_id:"pp_system_default",status:"pending",amount:1,currency_code:"mad"}]}}));
 });
+test("product quantity limits use managed stock and preserve backorders", () => {
+  const managed = normalizeProduct(rawProduct("limits", 150, {variants:[variant("limited", "M", "Noir", 150, 3)]}));
+  assert.equal(managed.variants[0].maxQuantity, 3);
+  const backorder = normalizeProduct(rawProduct("backorder", 150, {variants:[variant("back", "M", "Noir", 150, 0, {allow_backorder:true})]}));
+  assert.equal(backorder.variants[0].maxQuantity, null);
+  const unlimited = normalizeProduct(rawProduct("unlimited", 150, {variants:[variant("unlimited", "M", "Noir", 150, 0, {manage_inventory:false})]}));
+  assert.equal(unlimited.variants[0].maxQuantity, null);
+});

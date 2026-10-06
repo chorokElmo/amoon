@@ -23,7 +23,7 @@ export function Header() {
       <nav className="desktop-nav" aria-label="Navigation principale">{navigation}</nav>
       <div className="header-actions"><button type="button" className="icon-button" aria-label={fr.search} aria-haspopup="dialog" aria-expanded={panel === "search"} onClick={() => setPanel("search")}><Icon name="search"/></button><Link className="icon-button" href="/favoris" aria-label="Mes favoris"><Icon name="heart"/></Link><CartLink onClick={() => setPanel("cart")}/></div>
     </div></header>
-    <Sheet open={panel === "menu"} onClose={close} title="Amoon Collection"><nav className="mobile-nav" aria-label="Navigation mobile">{navigation}</nav><p className="sheet-note">La mode féminine, avec élégance.</p></Sheet>
+    <Sheet open={panel === "menu"} onClose={close} title="Amoon Collection"><nav className="mobile-nav" aria-label="Navigation mobile">{navigation}</nav><div className="menu-services" aria-label="Les services Amoon"><span><Icon name="truck"/>Livraison partout au Maroc</span><span><Icon name="card"/>Paiement à la livraison</span><span><Icon name="exchange"/>Échange sous 7 jours</span></div><p className="sheet-note">La mode féminine, avec élégance.</p></Sheet>
     <Sheet open={panel === "search"} onClose={close} title={fr.searchTitle} kind="search"><form action="/boutique" method="get" className="search-form" onSubmit={close}>
       <label htmlFor="store-search">{fr.searchLabel}</label><input id="store-search" name="q" type="search" maxLength={100} placeholder={fr.searchPlaceholder} required/><Button type="submit">{fr.search}<Icon name="arrow"/></Button>
     </form></Sheet>
