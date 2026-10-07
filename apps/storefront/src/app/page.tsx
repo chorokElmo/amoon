@@ -1,3 +1,4 @@
+import { brandSchema, serializeJsonLd, siteOrigin } from "@/lib/seo";
 import Link from "next/link";
 import { HomepageHero } from "@/components/storefront/homepage-hero";
 import type { CSSProperties } from "react";
@@ -11,7 +12,7 @@ import { NewsletterForm } from "@/components/storefront/newsletter";
 import { newsletterEndpoint } from "@/lib/newsletter-config";
 import { Icon } from "@/components/ui/icon";
 import { Botanical } from "@/components/storefront/botanical";
-export const metadata = { alternates: { canonical: "/" }, openGraph: { title: "Amoon Collection", url: "/", locale: "fr_MA", type: "website" as const } };
+export const metadata = { title: "Amoon Collection — Mode féminine au Maroc", description: "Découvrez les nouveautés Amoon Collection : vêtements féminins, ensembles et robes. Livraison partout au Maroc et paiement à la livraison.", alternates: { canonical: "/" }, openGraph: { title: "Amoon Collection", url: "/", locale: "fr_MA", type: "website" as const, description: "Découvrez les nouveautés Amoon Collection, boutique de mode féminine au Maroc.", images: [{url:"/images/hero-amoon-rack.png",alt:"Collection Amoon"}] } };
 export default async function Home() {
   await connection();
   const catalog = await getCatalog();
@@ -25,7 +26,7 @@ export default async function Home() {
     { src: "/images/editorial-wine.png", position: "85% center", alt: "Une garde-robe aux tons chauds" },
     { src: "/images/campaign-wine.png", position: "100% center", alt: "Silhouette en ivoire" },
   ];
-  return <>
+  return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:serializeJsonLd(brandSchema(siteOrigin(process.env.STOREFRONT_URL)))}}/>
     <HomepageHero/>
     <nav className="shop-stories category-editorial container" aria-label="Découvrir nos univers">
       {[{title:"Nouveautés",description:"La nouvelle sélection Amoon",href:"/nouveautes",image:"new-arrivals"},{title:"Ensembles",description:"Des looks faciles à porter",href:categoryHref("Ensembles"),image:"outfits"},{title:"Robes",description:"Des silhouettes féminines",href:categoryHref("Robes"),image:"dresses"}].map(tile=><Link className="shop-story" href={tile.href} key={tile.title}><Image src={"/images/category-"+tile.image+".png"} alt="" quality={90} fill sizes="(max-width: 640px) 85vw, 30vw"/><div><h2>{tile.title}</h2><p>{tile.description}</p><span>Découvrir<Icon name="arrow"/></span></div></Link>)}

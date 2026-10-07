@@ -24,7 +24,7 @@ const { signCart, readCartCookie, CART_AGE } = require(join(scratch, "cart-cooki
 const { parseCartAction, normalizeCart, medusaCart } = require(join(scratch, "medusa-cart.js"));
 const { parseCustomer, proof, validProof } = require(join(scratch, "checkout-model.js"));
 const { medusaCheckout, orderReceipt, reviewData } = require(join(scratch, "medusa-checkout.js"));
-const { siteOrigin, productSchema, serializeJsonLd } = require(join(scratch, "seo.js"));
+const { siteOrigin, productSchema, serializeJsonLd, catalogMetadata, breadcrumbSchema, brandSchema } = require(join(scratch, "seo.js"));
 const { setAnalyticsConsent, trackPageView } = require(join(scratch, "analytics.js"));
 test("restored localhost media resolves to internal storage without changing product records", () => {
   const backend = "http://medusa:9000";
@@ -407,4 +407,18 @@ test("product quantity limits use managed stock and preserve backorders", () => 
   assert.equal(backorder.variants[0].maxQuantity, null);
   const unlimited = normalizeProduct(rawProduct("unlimited", 150, {variants:[variant("unlimited", "M", "Noir", 150, 0, {manage_inventory:false})]}));
   assert.equal(unlimited.variants[0].maxQuantity, null);
+});
+test("SEO canonical URLs preserve pagination and exclude filtered results from indexing", () => {
+  const normal=catalogMetadata("Shop","Description","/boutique",{page:"2"});
+  assert.equal(normal.alternates.canonical,"/boutique?page=2");
+  const filtered=catalogMetadata("Shop","Description","/boutique",{q:"robe",page:"2"});
+  assert.equal(filtered.robots.index,false);
+  assert.equal(filtered.alternates.canonical,"/boutique");
+  assert.equal(catalogMetadata("Collection","Description","/collections/robes?univers=collection",{page:"3"}).alternates.canonical,"/collections/robes?univers=collection&page=3");
+});
+test("brand and breadcrumb structured data use the configured public origin", () => {
+  const breadcrumb=breadcrumbSchema("https://shop.example",[{name:"Accueil",path:"/"},{name:"Boutique",path:"/boutique"}]);
+  assert.equal(breadcrumb.itemListElement[1].position,2);
+  assert.equal(breadcrumb.itemListElement[1].item,"https://shop.example/boutique");
+  assert.equal(brandSchema("https://shop.example")["@graph"][0].url,"https://shop.example");
 });

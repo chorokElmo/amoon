@@ -16,9 +16,22 @@ export function productSchema(product: CatalogProduct, origin: string, images: s
     ...(v.sku ? { sku: v.sku } : {}),
     ...(v.stock === "unknown" ? {} : { availability: "https://schema.org/" + ({ in_stock: "InStock", out_of_stock: "OutOfStock", backorder: "BackOrder" } as const)[v.stock] }),
   }));
-  return { "@context": "https://schema.org", "@type": "Product", name: product.title, url,
+  return { "@context": "https://schema.org", "@type": "Product", name: product.title, url, brand: { "@type": "Brand", name: "Amoon Collection" },
     ...(product.description ? { description: product.description } : {}),
     ...(images.length ? { image: images.map(image => new URL(image, origin).href) } : {}),
     ...(offers.length ? { offers } : {}),
   };
+}
+
+export function breadcrumbSchema(origin: string, items: { name: string; path: string }[]) {
+  return { "@context":"https://schema.org", "@type":"BreadcrumbList", itemListElement:items.map((item,index)=>({"@type":"ListItem",position:index+1,name:item.name,item:new URL(item.path,origin).href})) };
+}
+export function brandSchema(origin: string) {
+  return {"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":origin+"/#organization",name:"Amoon Collection",url:origin,logo:origin+"/images/amoon-logo-black.png",sameAs:["https://www.instagram.com/amoon.collection1/"]},{"@type":"WebSite","@id":origin+"/#website",name:"Amoon Collection",url:origin,inLanguage:"fr-MA",publisher:{"@id":origin+"/#organization"}}]};
+}
+export function catalogMetadata(title: string, description: string, canonical: string, query: Record<string,string|string[]|undefined>) {
+  const filtered=Object.entries(query).some(([key,value])=>!['page','univers'].includes(key)&&Boolean(Array.isArray(value)?value.some(Boolean):value));
+  const page=typeof query.page==='string'&&/^\d+$/.test(query.page)?Number(query.page):1;
+  const url=!filtered&&Number.isSafeInteger(page)&&page>1?canonical+(canonical.includes('?')?'&':'?')+'page='+page:canonical;
+  return {title,description,alternates:{canonical:url},...(filtered?{robots:{index:false,follow:true}}:{}),openGraph:{title,description,url,siteName:"Amoon Collection",locale:"fr_MA",type:"website" as const,images:[{url:"/images/hero-amoon-rack.png",alt:"Collection Amoon"}]},twitter:{card:"summary_large_image" as const,title,description,images:["/images/hero-amoon-rack.png"]}};
 }

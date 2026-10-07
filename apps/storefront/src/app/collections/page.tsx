@@ -1,3 +1,4 @@
+import { catalogMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { connection } from "next/server";
 import { getCatalog } from "@/lib/catalog";
@@ -5,7 +6,7 @@ import { descendantIds } from "@/lib/catalog-model";
 import { CatalogImage } from "@/components/catalog/catalog-image";
 import { CatalogStatus } from "@/components/catalog/catalog-status";
 import { Icon } from "@/components/ui/icon";
-export const metadata = { title: "Collections", alternates: { canonical: "/collections" } };
+export const metadata = catalogMetadata("Collections de mode féminine", "Découvrez les collections Amoon : vêtements féminins, ensembles et robes pour composer votre garde-robe au Maroc.", "/collections", {});
 export default async function Collections() {
   await connection();
   const result = await getCatalog();

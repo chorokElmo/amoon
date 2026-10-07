@@ -1,3 +1,4 @@
+import { catalogMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCatalog } from "@/lib/catalog";
@@ -9,7 +10,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const [{ handle }, query, result] = await Promise.all([params, searchParams, getCatalog()]);
   const scope = result.ok ? query.univers === "collection" ? result.data.collections.find(group => group.handle === handle) : groupByHandle(result.data, handle)?.group : null;
   const collision = query.univers === "collection" && result.ok && result.data.categories.some(group => group.handle === handle);
-  return { title: scope?.name || "Collection", ...(scope ? { alternates: { canonical: "/collections/" + encodeURIComponent(handle) + (collision ? "?univers=collection" : "") } } : { robots: { index: false, follow: false } }) };
+  return scope ? catalogMetadata(scope.name, scope.description || `Découvrez ${scope.name} chez Amoon Collection : une sélection de mode féminine au Maroc.`, "/collections/" + encodeURIComponent(handle) + (collision ? "?univers=collection" : ""), query) : {title:"Collection indisponible",robots:{index:false,follow:false}};
 }
 export default async function Collection({ params, searchParams }: Props) {
   const [{ handle }, query, result] = await Promise.all([params, searchParams, getCatalog()]);
