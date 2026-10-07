@@ -41,6 +41,7 @@ backendEnv = setValue(backendEnv, "DATABASE_URL", "postgres://amoon:" + encodeUR
 backendEnv = setValue(backendEnv, "MEDUSA_LOCAL_INFRASTRUCTURE", "true");
 backendEnv = setValue(backendEnv, "MEDUSA_WORKER_MODE", "shared");
 backendEnv = setValue(backendEnv, "MEDUSA_BACKEND_URL", "http://localhost:9001");
+backendEnv = setValue(backendEnv, "STORE_CORS", "http://localhost:8000");
 backendEnv = setValue(backendEnv, "ADMIN_CORS", "http://localhost:9001");
 backendEnv = setValue(backendEnv, "AUTH_CORS", "http://localhost:8000,http://localhost:9001");
 await writeFile(path.join(medusa, ".env"), backendEnv, { mode: 0o600 });
@@ -54,6 +55,7 @@ if (!settings.publishable_key?.startsWith("pk_") || !settings.region_id || !sett
 for (const relative of [".env", "apps/storefront/.env"]) {
   const target = path.join(root, relative);
   let contents = await readFile(target, "utf8");
+  contents = setValue(contents, "STOREFRONT_URL", "http://localhost:8000");
   contents = setValue(contents, "MEDUSA_INTERNAL_URL", "http://localhost:9001");
   contents = setValue(contents, "MEDUSA_PUBLISHABLE_KEY", settings.publishable_key);
   contents = setValue(contents, "MEDUSA_REGION_ID", settings.region_id);

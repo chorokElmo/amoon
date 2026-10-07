@@ -6,6 +6,10 @@ generation, existing-store transfer, owner invitations and private backups.
 
 Self-hosted French fashion commerce project. **Phases 1–7 implemented:** infrastructure, responsive storefront, editorial homepage, Medusa-connected catalog, actual product pages and persistent Medusa carts with quantity updates, removal and backend totals. Homepage and shop use actual Medusa data only; invented products, prices and imagery are not displayed. Checkout includes Moroccan address validation, real delivery choices, manual cash on delivery and backend order completion with a protected confirmation page. A subsequent read-only audit found order #1 persisted at 150 MAD with free delivery and COD metadata. Browser receipt/recovery and actual fulfillment/cash collection still need verification; setup creates no sample orders or customer details.
 
+## New Windows PC
+
+Run `npm ci`, then `npm run setup:pc` to recreate the required local configuration. See [the new-PC guide](docs/new-pc.md) for private data transfer and a shared online backend.
+
 ## Development
 
 To work without Docker, use the dedicated Windows PostgreSQL instance and compiled local Admin described in [native development](docs/native-development.md). Run `npm run setup:native`, build Medusa, then `npm run dev:native`. Native Admin uses http://localhost:9001/app; the storefront remains on http://localhost:8000. No sample products are seeded.
