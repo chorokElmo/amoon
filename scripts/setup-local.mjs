@@ -19,6 +19,7 @@ for (let attempt = 0; attempt < 90; attempt++) {
   await new Promise(resolve => setTimeout(resolve, 2000));
 }
 docker(["compose", "exec", "-T", "medusa", "node", "node_modules/@medusajs/cli/cli.js", "exec", "./src/scripts/setup-catalog.js"]);
+docker(["compose", "exec", "-T", "-e", "AMOON_DELIVERY_FEE=0", "medusa", "node", "node_modules/@medusajs/cli/cli.js", "exec", "./src/scripts/setup-checkout.js"]);
 const config = JSON.parse(docker(["compose", "exec", "-T", "medusa", "node", "-e", "process.stdout.write(require('node:fs').readFileSync('.catalog-setup.json','utf8'))"], true));
 if (!/^pk_/.test(config.publishable_key) || typeof config.region_id !== "string" || !config.sales_channel_id?.startsWith("sc_")) throw new Error("Invalid setup output; storefront environment was not updated.");
 for (const file of [".env", "apps/storefront/.env"]) {

@@ -2,7 +2,7 @@ name: amoon-collection
 
 x-medusa-env: &medusa-env
   NODE_ENV: production
-  DATABASE_URL: postgres://${POSTGRES_USER:-amoon}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-amoon}
+  DATABASE_URL: postgres://${POSTGRES_USER:-amoon}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-amoon}?sslmode=disable
   REDIS_URL: redis://redis:6379
   JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
   COOKIE_SECRET: ${COOKIE_SECRET:?Set COOKIE_SECRET}
@@ -106,7 +106,7 @@ services:
       NEWSLETTER_SUBSCRIBE_URL: ${NEWSLETTER_SUBSCRIBE_URL:-}
       NEWSLETTER_API_TOKEN: ${NEWSLETTER_API_TOKEN:-}
     ports:
-      - '127.0.0.1:8000:8000'
+      - '127.0.0.1:${STOREFRONT_PORT:-8000}:8000'
     depends_on:
       medusa: {condition: service_healthy}
     healthcheck:

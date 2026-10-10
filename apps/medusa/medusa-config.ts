@@ -21,12 +21,17 @@ if (localInfrastructure && (process.env.NODE_ENV === "production" || workerMode 
   throw new Error("Local infrastructure is development-only and cannot run a separate worker");
 }
 const redisUrl = localInfrastructure ? undefined : required("REDIS_URL");
+// Docker runs production builds locally too; HTTP loopback cannot issue a Secure session cookie.
+const backendOrigin = new URL(required("MEDUSA_BACKEND_URL"));
+const localHttp = backendOrigin.protocol === "http:" &&
+  ["localhost", "127.0.0.1", "[::1]"].includes(backendOrigin.hostname);
 
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: required("DATABASE_URL"),
     redisUrl,
     workerMode: workerMode as "shared" | "server" | "worker",
+    cookieOptions: { secure: !localHttp, sameSite: "lax", httpOnly: true },
     http: {
       storeCors: required("STORE_CORS"), adminCors: required("ADMIN_CORS"), authCors: required("AUTH_CORS"),
       jwtSecret: secret("JWT_SECRET"), cookieSecret: secret("COOKIE_SECRET")

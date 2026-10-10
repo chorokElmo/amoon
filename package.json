@@ -18,6 +18,7 @@
     "build": "npm run build --workspaces",
     "db:migrate": "npm run db:migrate --workspace @amoon/medusa",
     "setup:local": "node scripts/setup-local.mjs",
+    "setup:store": "node scripts/setup-store.mjs",
     "prepare:local": "node scripts/prepare-local.mjs",
     "setup:pc": "node scripts/setup-pc.mjs",
     "setup:native": "node scripts/setup-native.mjs",
