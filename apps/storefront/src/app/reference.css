@@ -435,10 +435,14 @@ input:not([type=checkbox]):not([type=radio]):focus,select:focus,textarea:focus {
 .product-detail .product-thumbnails button { position:relative; flex:0 0 calc((100% - 36px)/4); aspect-ratio:4/3; height:auto; min-width:72px; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:#F3EDE4; scroll-snap-align:start; }
 .product-detail .product-thumbnails button[aria-pressed=true] { border:2px solid var(--wine); }
 .product-thumbnails img { object-fit:contain; }
-.sheet--search:has(.product-zoom-photo) { width:min(1000px,94vw); max-height:94dvh; overflow:auto; }
-.sheet--search .product-zoom-photo { position:relative; height:70dvh; background:#F3EDE4; }
+.sheet--gallery { position:fixed; inset:0; margin:auto; width:min(1100px,calc(100vw - 32px)); height:min(900px,calc(100dvh - 32px)); max-width:calc(100vw - 32px); max-height:calc(100dvh - 32px); padding:clamp(12px,2vw,24px); border-radius:16px; overflow:hidden; }
+.sheet--gallery[open] { display:flex; flex-direction:column; gap:12px; }
+.sheet--gallery .sheet__heading { flex:0 0 auto; min-width:0; margin:0; gap:12px; }
+.sheet--gallery .sheet__heading h2 { min-width:0; font-size:clamp(18px,2vw,26px); line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; }
+.sheet--gallery .sheet__heading .icon-button { flex:0 0 44px; }
+.sheet--gallery .product-zoom-photo { position:relative; flex:1 1 0; width:100%; min-height:0; height:auto; aspect-ratio:auto; border-radius:8px; background:#F3EDE4; }
 .product-zoom-photo img { object-fit:contain; }
-.pdp-zoom-counter { text-align:center; font-size:12px; }
+.pdp-zoom-counter { flex:0 0 auto; margin:0; text-align:center; font-size:12px; }
 .product-detail .product-detail-price { color:var(--wine); font-size:26px; font-weight:600; margin:0 0 14px; }
 .product-detail .product-detail-price del { font-size:16px; color:var(--color-taupe); margin-left:12px; font-weight:400; }
 .product-detail .catalog-stock { display:flex; align-items:center; gap:10px; font-size:14px; margin:12px 0 20px; }

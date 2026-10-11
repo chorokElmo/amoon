@@ -2,7 +2,7 @@
 import { useEffect, useId, useRef } from "react";
 import { Icon } from "./icon";
 export function Sheet({ open, onClose, title, children, kind = "menu" }: {
-  open: boolean; onClose: () => void; title: string; children: React.ReactNode; kind?: "menu" | "search" | "cart";
+  open: boolean; onClose: () => void; title: string; children: React.ReactNode; kind?: "menu" | "search" | "cart" | "gallery";
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
