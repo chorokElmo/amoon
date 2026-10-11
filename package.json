@@ -30,7 +30,9 @@
     "backup:native": "node scripts/backup-native.mjs",
     "check:release": "node scripts/check-release.mjs",
     "test:slider": "node --test scripts/test-slider.mjs",
-    "test:slider:integration": "node --test scripts/test-slider-integration.mjs"
+    "test:slider:integration": "node --test scripts/test-slider-integration.mjs",
+    "test:branding": "node --test scripts/test-branding.mjs",
+    "test:branding:integration": "node --test scripts/test-branding-integration.mjs"
   },
   "devDependencies": {
     "eslint": "10.12.0",

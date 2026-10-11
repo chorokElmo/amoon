@@ -7,9 +7,10 @@ import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import { Wordmark } from "./wordmark";
+import type { LogoImage } from "./wordmark";
 import { CartLink } from "@/components/cart/cart-link";
 import { CartDrawer } from "@/components/cart/cart-drawer";
-export function Header() {
+export function Header({ logo }: { logo?: LogoImage }) {
   const pathname = usePathname();
   const [panel, setPanel] = useState<"menu" | "search" | "cart" | null>(null);
   const close = () => setPanel(null);
@@ -19,7 +20,7 @@ export function Header() {
     <div className="announcement"><span><Icon name="truck"/>{fr.announcement}</span><span><Icon name="card"/>Paiement à la livraison</span><span><Icon name="exchange"/>Échange facile sous 7 jours</span></div>
     <header className="store-header"><div className="header-main container">
       <button type="button" className="icon-button mobile-menu" aria-label={fr.menu} aria-haspopup="dialog" aria-expanded={panel === "menu"} onClick={() => setPanel("menu")}><Icon name="menu"/></button>
-      <Wordmark/>
+      <Wordmark logo={logo}/>
       <nav className="desktop-nav" aria-label="Navigation principale">{navigation}</nav>
       <div className="header-actions"><button type="button" className="icon-button" aria-label={fr.search} aria-haspopup="dialog" aria-expanded={panel === "search"} onClick={() => setPanel("search")}><Icon name="search"/></button><Link className="icon-button" href="/favoris" aria-label="Mes favoris"><Icon name="heart"/></Link><CartLink onClick={() => setPanel("cart")}/></div>
     </div></header>
