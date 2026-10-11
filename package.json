@@ -32,7 +32,11 @@
     "test:slider": "node --test scripts/test-slider.mjs",
     "test:slider:integration": "node --test scripts/test-slider-integration.mjs",
     "test:branding": "node --test scripts/test-branding.mjs",
-    "test:branding:integration": "node --test scripts/test-branding-integration.mjs"
+    "test:branding:integration": "node --test scripts/test-branding-integration.mjs",
+    "test:theme": "node --test scripts/test-theme.mjs",
+    "test:theme:integration": "node --test scripts/test-theme-integration.mjs",
+    "test:homepage": "node --test scripts/test-homepage-content.mjs",
+    "test:homepage:integration": "node --test scripts/test-homepage-content-integration.mjs"
   },
   "devDependencies": {
     "eslint": "10.12.0",

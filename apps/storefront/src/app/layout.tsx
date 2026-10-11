@@ -2,12 +2,16 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import "./globals.css";
 import "./reference.css";
+import "./theme.css";
+import "./homepage-content.css";
 import { Header } from "@/components/storefront/header";
 import { Footer } from "@/components/storefront/footer";
 import { WhatsAppButton } from "@/components/storefront/whatsapp-button";
 import { locale } from "@/lib/i18n";
 import { siteOrigin } from "@/lib/seo";
 import { getStoreBranding } from "@/lib/store-branding";
+import { getStoreTheme } from "@/lib/store-theme";
+import { getStoreHomepageContent } from "@/lib/store-homepage-content";
 
 export async function generateMetadata(): Promise<Metadata> {
   await connection();
@@ -26,6 +30,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const branding = await getStoreBranding();
-  return <html lang={locale.language} dir={locale.direction}><body><a className="skip-link" href="#main-content">Aller au contenu</a><Header logo={branding.headerLogo}/><main id="main-content" tabIndex={-1}>{children}</main><Footer logo={branding.footerLogo}/><WhatsAppButton/></body></html>;
+  const [branding, theme, homepage] = await Promise.all([getStoreBranding(), getStoreTheme(), getStoreHomepageContent()]);
+  return <html lang={locale.language} dir={locale.direction} data-site-theme={theme.properties ? theme.revision : undefined} style={theme.properties}><body><a className="skip-link" href="#main-content">Aller au contenu</a><Header logo={branding.headerLogo} announcement={homepage.announcement}/><main id="main-content" tabIndex={-1}>{children}</main><Footer logo={branding.footerLogo}/><WhatsAppButton/></body></html>;
 }
