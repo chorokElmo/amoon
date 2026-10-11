@@ -9,7 +9,7 @@ import ts from "typescript";
 
 // Execute the actual TypeScript modules without adding a test framework.
 // Strict typechecking remains a separate required check.
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "../apps/storefront");
 const scratch = mkdtempSync(join(tmpdir(), "amoon-catalog-tests-"));
 for (const name of ["catalog-model", "medusa-catalog", "catalog-media", "product-model", "cart-cookie", "medusa-cart", "checkout-model", "medusa-checkout", "seo", "analytics"]) {
   const code = readFileSync(join(root, "src/lib", name + ".ts"), "utf8");

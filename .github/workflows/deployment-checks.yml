@@ -17,8 +17,7 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run lint
       - run: npm run typecheck
-      - run: node --test scripts/server-check.test.mjs
-      - run: npm run test:catalog --workspace @amoon/storefront
+      - run: npm test
       - name: Validate production configuration and build Linux images
         run: |
           bash -n scripts/server-init.sh

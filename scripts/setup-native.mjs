@@ -17,6 +17,18 @@ function run(program, args, options = {}) {
   if (result.error || result.status !== 0) throw new Error("Native setup step failed: " + path.basename(program));
   return result.stdout;
 }
+if (process.argv.includes("--plan")) {
+  console.log("Initialize/start the dedicated native PostgreSQL database, run the unified core setup, and sync storefront settings.");
+  if (process.argv.includes("--build")) console.log("Build the Medusa backend and Admin.");
+  console.log("No changes made.");
+  process.exit(0);
+}
+if (process.platform !== "win32") throw new Error("Native provisioning requires Windows. Use the Docker server launcher on Linux.");
+const [major, minor] = process.versions.node.split(".").map(Number);
+if (major < 22 || (major === 22 && minor < 12)) throw new Error("Node.js 22.12 or newer is required.");
+const require = createRequire(import.meta.url);
+try { require.resolve("@medusajs/cli/cli.js"); }
+catch { throw new Error("Dependencies are missing. Run npm ci first."); }
 await prepareLocal();
 await mkdir(local, { recursive: true });
 await mkdir(path.join(local, "config"), { recursive: true });
@@ -46,21 +58,13 @@ backendEnv = setValue(backendEnv, "ADMIN_CORS", "http://localhost:9001");
 backendEnv = setValue(backendEnv, "AUTH_CORS", "http://localhost:8000,http://localhost:9001");
 await writeFile(path.join(medusa, ".env"), backendEnv, { mode: 0o600 });
 const env = { ...process.env, NODE_ENV: "development", MEDUSA_LOCAL_INFRASTRUCTURE: "true", MEDUSA_WORKER_MODE: "shared", MEDUSA_DISABLE_TELEMETRY: "true", XDG_CONFIG_HOME: path.join(local, "config") };
-const require = createRequire(import.meta.url);
-const cli = require.resolve("@medusajs/cli/cli.js");
-run(process.execPath, [cli, "db:migrate"], { cwd: medusa, env });
-run(process.execPath, [cli, "exec", "./src/scripts/setup-catalog.ts"], { cwd: medusa, env });
-const settings = JSON.parse(await readFile(path.join(medusa, ".catalog-setup.json"), "utf8"));
-if (!settings.publishable_key?.startsWith("pk_") || !settings.region_id || !settings.sales_channel_id?.startsWith("sc_")) throw new Error("Invalid catalog setup output");
 for (const relative of [".env", "apps/storefront/.env"]) {
-  const target = path.join(root, relative);
-  let contents = await readFile(target, "utf8");
+  const file = path.join(root, relative);
+  let contents = await readFile(file, "utf8");
   contents = setValue(contents, "STOREFRONT_URL", "http://localhost:8000");
-  contents = setValue(contents, "MEDUSA_INTERNAL_URL", "http://localhost:9001");
-  contents = setValue(contents, "MEDUSA_PUBLISHABLE_KEY", settings.publishable_key);
-  contents = setValue(contents, "MEDUSA_REGION_ID", settings.region_id);
-  contents = setValue(contents, "MEDUSA_SALES_CHANNEL_ID", settings.sales_channel_id);
   contents = setValue(contents, "HOMEPAGE_DEMO", "false");
-  await writeFile(target, contents, { mode: 0o600 });
+  await writeFile(file, contents, { mode: 0o600 });
 }
-console.log("Native database, Morocco/MAD region and catalog connection configured. No sample products created. Build Medusa, then start with npm run dev:native.");
+run(process.execPath, [path.join(root, "scripts/setup-store.mjs"), "--scope", "core"], { env });
+if (process.argv.includes("--build")) run(process.execPath, [path.join(root, "scripts/build-medusa.mjs")], { cwd: medusa, env });
+console.log("Native store configured. Run npm run dev:native and npm run dev:storefront in separate terminals.");

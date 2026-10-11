@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { configurationChecks, probe } from "./server-check.mjs";
+import { configurationChecks, probe } from "../scripts/server-check.mjs";
 import { createServer } from "node:http";
 const valid = () => ({ STOREFRONT_URL: "https://shop.example.com", MEDUSA_BACKEND_URL: "https://api.example.com", STORE_CORS: "https://shop.example.com", ADMIN_CORS: "https://api.example.com", AUTH_CORS: "https://shop.example.com,https://api.example.com", POSTGRES_PASSWORD: "a".repeat(64), JWT_SECRET: "b".repeat(64), COOKIE_SECRET: "c".repeat(64), CART_COOKIE_SECRET: "d".repeat(64), MEDUSA_PUBLISHABLE_KEY: "pk_test", MEDUSA_REGION_ID: "reg_test", MEDUSA_SALES_CHANNEL_ID: "sc_test" });
 test("valid deployment uses independent secrets and origin-specific CORS", () => {
@@ -16,6 +16,12 @@ test("rejects reused secrets, URL-unsafe database passwords and disconnected cat
   assert.equal(configurationChecks({ ...valid(), POSTGRES_PASSWORD: "a/".repeat(32) }).database_password_url_safe, false);
   assert.equal(configurationChecks({ ...valid(), MEDUSA_PUBLISHABLE_KEY: "" }).catalog_configured, false);
   assert.equal(configurationChecks({ ...valid(), AUTH_CORS: "https://wrong.example.com" }).cors_matches_origins, false);
+});
+
+test("release validation rejects extra CORS origins and demo mode", () => {
+  assert.equal(configurationChecks({ ...valid(), STORE_CORS: 'https://shop.example.com,*' }).cors_allowed_origins, false);
+  assert.equal(configurationChecks({ ...valid(), ADMIN_CORS: 'https://api.example.com,https://other.example.com' }).cors_allowed_origins, false);
+  assert.equal(configurationChecks({ ...valid(), HOMEPAGE_DEMO: 'true' }).demo_disabled, false);
 });
 test("HTTP checks distinguish reachable services from a reverse-proxy failure", async () => {
   const server = createServer((req, res) => { res.writeHead(req.url === "/health" ? 200 : 502); res.end("diagnostic fixture"); });
