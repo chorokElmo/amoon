@@ -5,7 +5,7 @@ COPY apps/storefront/package.json apps/storefront/package.json
 COPY apps/medusa/package.json apps/medusa/package.json
 RUN npm ci
 COPY apps/storefront apps/storefront
-COPY apps/medusa/src/lib apps/medusa/src/lib
+COPY apps/medusa apps/medusa
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build --workspace @amoon/storefront
 
