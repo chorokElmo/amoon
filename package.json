@@ -36,7 +36,9 @@
     "test:theme": "node --test scripts/test-theme.mjs",
     "test:theme:integration": "node --test scripts/test-theme-integration.mjs",
     "test:homepage": "node --test scripts/test-homepage-content.mjs",
-    "test:homepage:integration": "node --test scripts/test-homepage-content-integration.mjs"
+    "test:homepage:integration": "node --test scripts/test-homepage-content-integration.mjs",
+    "test:settings": "node --test scripts/test-store-settings.mjs",
+    "test:settings:integration": "node --test scripts/test-store-settings-integration.mjs"
   },
   "devDependencies": {
     "eslint": "10.12.0",

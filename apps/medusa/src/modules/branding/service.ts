@@ -8,8 +8,28 @@ import { ThemeSettings } from "./models/theme-settings";
 import type { ThemePalette } from "../../lib/theme-palette";
 import { HomepageContentSettings } from "./models/homepage-content-settings";
 import type { HomepageContent } from "../../lib/homepage-content";
+import type { StoreSettings } from "../../lib/store-settings";
 
 class BrandingService extends MedusaService({ BrandingConfig, BrandingImage, ThemeSettings, HomepageContentSettings }) {
+  @InjectManager()
+  async restoreNativeStoreSettings(id: string, name: string, metadata: unknown, revision: number, @MedusaContext() context?: Context<EntityManager>) {
+    const manager = context?.manager;
+    if (!manager) throw new Error("Store settings compensation unavailable");
+    await manager.execute("UPDATE store SET name = ?, metadata = (COALESCE(metadata, '{}'::jsonb) - 'amoon_store_settings' - 'amoon_delivery_backups') || ?::jsonb, updated_at = now() WHERE id = ? AND COALESCE((metadata->'amoon_store_settings'->>'revision')::integer, 0) = ?", [name, JSON.stringify(metadata), id, revision]);
+  }
+  @InjectManager()
+  async saveNativeStoreSettings(id: string, settings: StoreSettings, backups: unknown, revision: number, @MedusaContext() context?: Context<EntityManager>) {
+    return this.saveNativeStoreSettings_(id, settings, backups, revision, context);
+  }
+  @InjectTransactionManager()
+  protected async saveNativeStoreSettings_(id: string, settings: StoreSettings, backups: unknown, revision: number, @MedusaContext() context?: Context<EntityManager>) {
+    const manager = context?.transactionManager;
+    if (!manager) throw new Error("Store settings transaction unavailable");
+    const { name, ...info } = settings.info;
+    const value = JSON.stringify({ settings: { ...settings, info }, revision: revision + 1 });
+    const rows = await manager.execute("UPDATE store SET name = ?, metadata = jsonb_set(jsonb_set(COALESCE(metadata, '{}'::jsonb), '{amoon_store_settings}', ?::jsonb), '{amoon_delivery_backups}', ?::jsonb), updated_at = now() WHERE id = ? AND deleted_at IS NULL AND COALESCE((metadata->'amoon_store_settings'->>'revision')::integer, 0) = ? RETURNING id", [name, value, JSON.stringify(backups), id, revision]);
+    if (!rows.length) throw new MedusaError(MedusaError.Types.CONFLICT, "Les paramètres ont été modifiés ailleurs. Rechargez la page.");
+  }
   @InjectManager()
   async saveHomepageContent(action: "draft" | "publish", content: HomepageContent, revision: number, @MedusaContext() context?: Context<EntityManager>) {
     return this.saveHomepageContent_(action, content, revision, context);

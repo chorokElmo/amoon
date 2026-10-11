@@ -44,14 +44,14 @@ module.exports = defineConfig({
     maxUploadFileSize: 10 * 1024 * 1024
   },
   modules: [{ resolve: "./src/modules/homepage-slider" }, { resolve: "./src/modules/branding" }, ...(localInfrastructure ? [
-    { resolve: "@medusajs/medusa/fulfillment", options: { providers: [{ resolve: "@medusajs/medusa/fulfillment-manual", id: "manual" }] } },
+    { resolve: "@medusajs/medusa/fulfillment", options: { providers: [{ resolve: "./src/modules/amoon-manual-fulfillment", id: "manual" }] } },
     { resolve: "@medusajs/medusa/caching", options: { in_memory: { enable: true } } },
     { resolve: "@medusajs/medusa/event-bus-local" },
     { resolve: "@medusajs/medusa/workflow-engine-inmemory" },
     { resolve: "@medusajs/medusa/file", options: { providers: [{ resolve: "@medusajs/medusa/file-local", id: "local", options: { backend_url: backendOrigin.origin + "/static" } }] } }
   ] : [
     { resolve: "@medusajs/medusa/file", options: { providers: [{ resolve: "@medusajs/medusa/file-local", id: "local", options: { backend_url: required("MEDUSA_BACKEND_URL").replace(/\/$/, "") + "/static" } }] } },
-    { resolve: "@medusajs/medusa/fulfillment", options: { providers: [{ resolve: "@medusajs/medusa/fulfillment-manual", id: "manual" }] } },
+    { resolve: "@medusajs/medusa/fulfillment", options: { providers: [{ resolve: "./src/modules/amoon-manual-fulfillment", id: "manual" }] } },
     { resolve: "@medusajs/medusa/caching", options: { providers: [{ resolve: "@medusajs/caching-redis", id: "caching-redis", is_default: true, options: { redisUrl } }] } },
     { resolve: "@medusajs/medusa/event-bus-redis", options: { redisUrl } },
     { resolve: "@medusajs/medusa/workflow-engine-redis", options: { redis: { redisUrl } } },
