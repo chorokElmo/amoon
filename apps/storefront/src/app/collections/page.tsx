@@ -2,7 +2,7 @@ import { catalogMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { connection } from "next/server";
 import { getCatalog } from "@/lib/catalog";
-import { descendantIds } from "@/lib/catalog-model";
+import { descendantIds, visibleCategories } from "@/lib/catalog-model";
 import { CatalogImage } from "@/components/catalog/catalog-image";
 import { CatalogStatus } from "@/components/catalog/catalog-status";
 import { Icon } from "@/components/ui/icon";
@@ -12,7 +12,7 @@ export default async function Collections() {
   const result = await getCatalog();
   if (!result.ok) return <CatalogStatus title="Nos collections" action="/collections"/>;
   const { data } = result;
-  return <div className="collection-index container"><p className="eyebrow">À chacune son allure</p><h1>Nos collections</h1><p>Des univers à explorer, des pièces à faire vôtres.</p>{[{ title: "Par catégorie", groups: data.categories, category: true }, { title: "Les collections Amoon", groups: data.collections, category: false }].map(section => section.groups.length > 0 && <section key={section.title} aria-label={section.title}><h2>{section.title}</h2><div className="collection-index-grid">{section.groups.map(group => {
+  return <div className="collection-index container"><p className="eyebrow">À chacune son allure</p><h1>Nos collections</h1><p>Des univers à explorer, des pièces à faire vôtres.</p>{[{ title: "Par catégorie", groups: visibleCategories(data.categories), category: true }, { title: "Les collections Amoon", groups: data.collections, category: false }].map(section => section.groups.length > 0 && <section key={section.title} aria-label={section.title}><h2>{section.title}</h2><div className="collection-index-grid">{section.groups.map(group => {
     const ids = descendantIds(data.categories, group.id);
     const products = data.products.filter(product => section.category ? product.categoryIds.some(id => ids.has(id)) : product.collectionId === group.id);
     // When a collection handle overlaps a category, use an explicit collection query.

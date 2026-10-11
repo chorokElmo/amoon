@@ -72,8 +72,13 @@ export function matchingVariants(product: CatalogProduct, filters: Filters): Cat
   return product.variants.filter(variant => (!filters.sizes.length || variant.sizes.some(value => filters.sizes.some(size => fold(size) === fold(value)))) && (!filters.colors.length || variant.colors.some(value => filters.colors.some(color => fold(color) === fold(value)))) && (filters.min === null || (variant.price !== null && variant.price >= filters.min)) && (filters.max === null || (variant.price !== null && variant.price <= filters.max)) && (!filters.available || variant.stock === "in_stock"));
 }
 
+export function visibleCategories(categories: CatalogGroup[]) {
+  const names = new Set<string>();
+  return categories.filter(group => { const name = fold(group.name); if (!name || names.has(name)) return false; names.add(name); return true; });
+}
 export function descendantIds(categories: CatalogGroup[], id: string): Set<string> {
-  const result = new Set([id]);
+  const name = categories.find(group => group.id === id)?.name;
+  const result = new Set([id, ...categories.filter(group => name && fold(group.name) === fold(name)).map(group => group.id)]);
   for (let size = -1; size !== result.size;) { size = result.size; for (const group of categories) if (group.parentId && result.has(group.parentId)) result.add(group.id); }
   return result;
 }
