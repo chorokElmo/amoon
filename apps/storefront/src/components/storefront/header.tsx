@@ -7,19 +7,21 @@ import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import { Wordmark } from "./wordmark";
+import type { LogoImage } from "./wordmark";
 import { CartLink } from "@/components/cart/cart-link";
 import { CartDrawer } from "@/components/cart/cart-drawer";
-export function Header() {
+import type { HomepageContent } from "@/lib/homepage-content";
+export function Header({ logo, announcement }: { logo?: LogoImage; announcement?: HomepageContent["announcement"] }) {
   const pathname = usePathname();
   const [panel, setPanel] = useState<"menu" | "search" | "cart" | null>(null);
   const close = () => setPanel(null);
   useEffect(() => { const open = () => setPanel("cart"); window.addEventListener("amoon:open-cart", open); return () => window.removeEventListener("amoon:open-cart", open); }, []);
   const navigation = fr.navigation.map(({ href, label }) => <Link key={href} href={href} aria-current={pathname === href ? "page" : undefined} onClick={close}>{label}</Link>);
   return <>
-    <div className="announcement"><span><Icon name="truck"/>{fr.announcement}</span><span><Icon name="card"/>Paiement à la livraison</span><span><Icon name="exchange"/>Échange facile sous 7 jours</span></div>
+    {(!announcement || announcement.enabled) && <div className="announcement" style={announcement?.background && announcement.color ? { background: announcement.background, color: announcement.color } : undefined}><span><Icon name="truck"/>{announcement?.url ? <Link href={announcement.url}>{announcement.text}</Link> : announcement?.text || fr.announcement}</span><span><Icon name="card"/>Paiement à la livraison</span><span><Icon name="exchange"/>Échange facile sous 7 jours</span></div>}
     <header className="store-header"><div className="header-main container">
       <button type="button" className="icon-button mobile-menu" aria-label={fr.menu} aria-haspopup="dialog" aria-expanded={panel === "menu"} onClick={() => setPanel("menu")}><Icon name="menu"/></button>
-      <Wordmark/>
+      <Wordmark logo={logo}/>
       <nav className="desktop-nav" aria-label="Navigation principale">{navigation}</nav>
       <div className="header-actions"><button type="button" className="icon-button" aria-label={fr.search} aria-haspopup="dialog" aria-expanded={panel === "search"} onClick={() => setPanel("search")}><Icon name="search"/></button><Link className="icon-button" href="/favoris" aria-label="Mes favoris"><Icon name="heart"/></Link><CartLink onClick={() => setPanel("cart")}/></div>
     </div></header>

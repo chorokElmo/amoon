@@ -1,0 +1,33 @@
+/* Only a published, non-default palette activates these color overrides. */
+html[data-site-theme] ::selection { background:var(--accent); color:var(--theme-on-accent); }
+html[data-site-theme] .store-header { background:var(--theme-header-background); color:var(--color-ink); }
+html[data-site-theme] .store-footer { background:var(--theme-footer-background); color:var(--color-ink); }
+html[data-site-theme] .announcement,html[data-site-theme] .cart-count { color:var(--theme-on-primary); }
+html[data-site-theme] .button--primary,html[data-site-theme] .button--primary:hover,html[data-site-theme] .newsletter-fields .button:disabled,html[data-site-theme] .editorial-hero-actions .button,html[data-site-theme] .editorial-hero-actions .button:hover {
+  background:var(--theme-button-background); color:var(--theme-button-text); border-color:var(--theme-button-background);
+}
+html[data-site-theme] .button--outline,html[data-site-theme] .eyebrow,html[data-site-theme] .text-link:hover,html[data-site-theme] .heading-flourish,html[data-site-theme] .product-detail .product-detail-price,html[data-site-theme] .quick-add p { color:var(--theme-link); }
+html[data-site-theme] .button--outline:hover,html[data-site-theme] .wishlist-button:hover,html[data-site-theme] .wishlist-button[aria-pressed=true],html[data-site-theme] .pdp-variants button[aria-pressed=true] { color:var(--theme-on-primary); }
+html[data-site-theme] .desktop-nav a[aria-current=page] { color:var(--theme-header-link); }
+html[data-site-theme] .icon-button:hover { color:var(--theme-secondary-link); }
+html[data-site-theme] .footer-grid h2,html[data-site-theme] .footer-grid a:hover { color:var(--theme-footer-link); }
+html[data-site-theme] .story-copy h2 em,html[data-site-theme] .editorial-hero h1 em,html[data-site-theme] .editorial-hero .eyebrow,html[data-site-theme] .editorial-hero-secondary,html[data-site-theme] .editorial-hero-secondary:hover { color:var(--theme-link); }
+html[data-site-theme] .season-copy h2 em,html[data-site-theme] .newsletter-inner h2 em { color:var(--theme-secondary-link); }
+html[data-site-theme] .editorial-hero,html[data-site-theme] .campaign-stage,html[data-site-theme] .campaign-brand,html[data-site-theme] .catalog-empty,html[data-site-theme] .editorial-banner,html[data-site-theme] .pdp-main-photo,html[data-site-theme] .pdp-thumbnail,html[data-site-theme] .sheet--gallery .product-zoom-photo { background:var(--color-cream); color:var(--color-ink); }
+html[data-site-theme] .editorial-banner > p:not(.banner-monogram),html[data-site-theme] .editorial-hero-service,html[data-site-theme] .catalog-image-placeholder { color:var(--color-ink); }
+html[data-site-theme] input:not([type=checkbox]):not([type=radio]):not([type=color]),html[data-site-theme] textarea,html[data-site-theme] select { background:var(--color-cream); color:var(--color-ink); border-color:var(--line); }
+html[data-site-theme] input::placeholder,html[data-site-theme] textarea::placeholder { color:var(--color-taupe); opacity:1; }
+html[data-site-theme] input[type=checkbox],html[data-site-theme] input[type=radio] { accent-color:var(--accent); }
+html[data-site-theme] .button:focus-visible,html[data-site-theme] a:focus-visible,html[data-site-theme] input:focus-visible,html[data-site-theme] select:focus-visible { outline-color:var(--color-ink); }
+html[data-site-theme] .catalog-card--premium,html[data-site-theme] .catalog-card--premium:hover { border-color:var(--line); }
+html[data-site-theme] .catalog-card--premium .quick-add button,html[data-site-theme] .catalog-card--premium .quick-add button:hover { background:var(--theme-button-background); color:var(--theme-button-text); }
+html[data-site-theme] .catalog-card--premium .catalog-price,html[data-site-theme] .card-gallery-arrow:hover,html[data-site-theme] .pdp-gallery-arrow,html[data-site-theme] .pdp-zoom-button,html[data-site-theme] .mobile-nav a:hover,html[data-site-theme] .mobile-nav a[aria-current=page] { color:var(--theme-link); }
+html[data-site-theme] .catalog-card--premium .product-label,html[data-site-theme] .pdp-new-badge { background:var(--accent); color:var(--theme-on-accent); }
+html[data-site-theme] .card-gallery-thumbnails button,html[data-site-theme] .product-detail .product-thumbnails button { background:var(--color-cream); }
+html[data-site-theme] .catalog-card--premium .product-image,html[data-site-theme] .catalog-card--premium .catalog-image-placeholder,html[data-site-theme] .pdp-gallery-frame,html[data-site-theme] .product-detail .product-gallery-main,html[data-site-theme] .product-detail .catalog-image-placeholder { background:var(--color-cream); border-color:var(--line); }
+html[data-site-theme] .skip-link { color:var(--color-cream); }
+html[data-site-theme] .favorite-error { background:var(--color-cream); color:var(--theme-link); }
+html[data-site-theme] .wishlist-button,html[data-site-theme] .filter-validation,html[data-site-theme] .catalog-stock--in_stock,html[data-site-theme] .product-detail .catalog-stock--out_of_stock { color:var(--theme-link); }
+html[data-site-theme] .wishlist-button:hover,html[data-site-theme] .wishlist-button[aria-pressed=true] { color:var(--theme-on-primary); }
+html[data-site-theme] .mobile-nav a::after { color:var(--theme-link); }
+/* Image overlays and product color swatches retain their semantic/image-specific colors. */
