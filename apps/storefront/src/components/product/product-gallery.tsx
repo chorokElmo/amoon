@@ -20,6 +20,6 @@ export function ProductGallery({ images, title, productId, isNew = false, imageF
       {src && <><span className="pdp-gallery-counter" aria-live="polite">{active + 1}/{images.length}</span><button type="button" className="pdp-zoom-button" aria-label="Ouvrir le grand aperçu" onClick={() => setZoom(true)}><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></svg></button></>}
     </div>
     {images.length > 1 && <div className="product-thumbnails" aria-label="Photographies de la pièce">{images.map((image, number) => <button type="button" key={image} aria-label={"Voir la photographie " + (number + 1)} aria-pressed={number === active} onClick={() => setIndex(number)}><CatalogPhoto src={image} alt={title + " — photographie " + (number + 1)} sizes="(max-width: 760px) 80px, 140px"/></button>)}</div>}
-    <Sheet open={zoom} onClose={() => setZoom(false)} title={title} kind="search"><div className="product-zoom-photo"><CatalogPhoto key={src || "none"} src={src} alt={alt} sizes="90vw"/>{controls}</div>{images.length > 1 && <p className="pdp-zoom-counter" aria-live="polite">{active + 1} / {images.length}</p>}</Sheet>
+    <Sheet open={zoom} onClose={() => setZoom(false)} title={title} kind="gallery"><div className="product-zoom-photo"><CatalogPhoto key={src || "none"} src={src} alt={alt} sizes="90vw"/>{controls}</div>{images.length > 1 && <p className="pdp-zoom-counter" aria-live="polite">{active + 1} / {images.length}</p>}</Sheet>
   </div>;
 }
