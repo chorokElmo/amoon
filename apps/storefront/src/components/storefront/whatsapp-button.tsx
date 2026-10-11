@@ -1,13 +1,14 @@
-import { storeConfig } from "@/lib/store-config";
+import { getStoreConfig } from "@/lib/store-config";
 import styles from "./whatsapp-button.module.css";
 
-export function WhatsAppButton() {
+export async function WhatsAppButton() {
+  const storeConfig = await getStoreConfig();
   if (!storeConfig.whatsappUrl) return null;
 
   return (
     <a
       className={styles.button}
-      href={`${storeConfig.whatsappUrl}?text=${encodeURIComponent("Bonjour Amoon Collection, j’aimerais avoir un renseignement.")}`}
+      href={`${storeConfig.whatsappUrl}?text=${encodeURIComponent(`Bonjour ${storeConfig.settings.info.name}, j’aimerais avoir un renseignement.`)}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Contacter Amoon sur WhatsApp (nouvel onglet)"

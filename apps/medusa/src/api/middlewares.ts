@@ -3,8 +3,11 @@ import { SaveSliderSchema, UploadSliderImageSchema } from "../lib/slider-validat
 import { SaveBrandingSchema, UploadBrandingSchema } from "../lib/branding-validation";
 import { SaveThemeSchema } from "../lib/theme-validation";
 import { SaveHomepageContentSchema } from "../lib/homepage-content-validation";
+import { SaveStoreSettingsSchema } from "../lib/store-settings-validation";
 
 export default defineMiddlewares({ routes: [
+  { matcher: "/admin/store-settings*", middlewares: [authenticate("user", ["session", "bearer"])] },
+  { matcher: "/admin/store-settings", method: "POST", bodyParser: { sizeLimit: "128kb" }, middlewares: [validateAndTransformBody(SaveStoreSettingsSchema)] },
   { matcher: "/admin/homepage-content*", middlewares: [authenticate("user", ["session", "bearer"])] },
   { matcher: "/admin/homepage-content", method: "POST", bodyParser: { sizeLimit: "128kb" }, middlewares: [validateAndTransformBody(SaveHomepageContentSchema)] },
   { matcher: "/admin/homepage-content/images", method: "POST", bodyParser: { sizeLimit: "15mb" }, middlewares: [validateAndTransformBody(UploadSliderImageSchema)] },

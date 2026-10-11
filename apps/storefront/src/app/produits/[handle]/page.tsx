@@ -4,7 +4,7 @@ import { connection } from "next/server";
 import { notFound } from "next/navigation";
 import { getCatalog } from "@/lib/catalog";
 import { relatedProducts } from "@/lib/product-model";
-import { storeConfig } from "@/lib/store-config";
+import { getStoreConfig } from "@/lib/store-config";
 import { CatalogCard } from "@/components/catalog/catalog-card";
 import { catalogImageSource } from "@/components/catalog/catalog-image";
 import { CatalogStatus } from "@/components/catalog/catalog-status";
@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 export default async function ProductPage({ params, searchParams }: Props) {
+  const storeConfig = await getStoreConfig();
   await connection();
   const { handle } = await params;
   const query = await searchParams;

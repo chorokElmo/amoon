@@ -1,6 +1,7 @@
 import { list, record, text } from "./catalog-model";
 import { medusaCart, normalizeCart, type Cart, type CartConfig } from "./medusa-cart";
 import { parseCustomer, proof, validProof, CheckoutError, type Customer } from "./checkout-model";
+import type { StoreSettings } from "./store-settings";
 export type ShippingChoice = { id: string; name: string; amount: number };
 export type Checkout = { cart: Cart; customer: Customer | null; options: ShippingChoice[]; selectedShipping: string | null; shipping: number; cod: boolean; review: string | null; completed: boolean };
 export type Receipt = { id: string; number: string; total: number; currency: "mad" };
@@ -9,7 +10,7 @@ export function orderReceipt(input: unknown): Receipt {
   const o = record(input); if (!/^order_[a-zA-Z0-9]+$/.test(text(o.id)) || o.currency_code !== "mad") throw new CheckoutError("La confirmation est indisponible.", 503);
   return { id: text(o.id), number: text(o.custom_display_id) || String(o.display_id || o.id), total: amount(o.total), currency: "mad" };
 }
-export function medusaCheckout(config: CartConfig, secret: string, transport: typeof fetch = fetch) {
+export function medusaCheckout(config: CartConfig, secret: string, transport: typeof fetch = fetch, settingsReader?: () => Promise<StoreSettings | null>) {
   const service = medusaCart(config, transport);
   const base = (id: string) => "/store/carts/" + encodeURIComponent(id);
   async function raw(id: string) {
@@ -25,12 +26,16 @@ export function medusaCheckout(config: CartConfig, secret: string, transport: ty
     const selectedShipping = text(record(list(c.shipping_methods)[0]).shipping_option_id) || null;
     const shipping = amount(c.shipping_total);
     const providers = list((await service.request("/store/payment-providers?region_id=" + encodeURIComponent(config.regionId))).payment_providers);
-    const cod = providers.some(p => record(p).id === "pp_system_default" && record(p).is_enabled !== false);
+    const settings = settingsReader ? await settingsReader() : null;
+    const cod = settings?.payment.cod !== false && providers.some(p => record(p).id === "pp_system_default" && record(p).is_enabled !== false);
     const options: ShippingChoice[] = completed ? [] : list((await service.request("/store/shipping-options?limit=100&cart_id=" + encodeURIComponent(id))).shipping_options).filter(v => {
-      const o = record(v); return o.price_type === "flat" && typeof o.amount === "number" && Number.isFinite(o.amount) && o.amount >= 0;
+      const o = record(v); return (o.price_type === "flat" || o.price_type === "calculated" && settings?.delivery.some(d => d.id === o.id)) && typeof o.amount === "number" && Number.isFinite(o.amount) && o.amount >= 0;
     }).map(v => { const o = record(v); return { id: text(o.id), name: text(o.name), amount: amount(o.amount) }; });
     const state: Checkout = { cart, customer, options, selectedShipping, shipping, cod, review: null, completed };
-    if (!completed && customer && cart.items.length && cod && options.some(o => o.id === selectedShipping)) state.review = proof(reviewData(state), secret);
+    const chosen = options.find(o => o.id === selectedShipping);
+    const managed = settings?.delivery.some(o => o.id === selectedShipping);
+    const feeCurrent = !managed || chosen?.amount === record(list(c.shipping_methods)[0]).amount;
+    if (!completed && customer && cart.items.length && cod && chosen && feeCurrent) state.review = proof(reviewData(state), secret);
     return state;
   }
   return {
