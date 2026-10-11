@@ -26,3 +26,4 @@ jobs:
           bash scripts/server-init.sh shop.example.com api.example.com
           docker compose --env-file .env.production -f docker-compose.production.yml config --quiet
           docker compose --env-file .env.production -f docker-compose.production.yml build
+
