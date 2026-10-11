@@ -43,7 +43,7 @@ module.exports = defineConfig({
     backendUrl: process.env.MEDUSA_ADMIN_BACKEND_URL || "/",
     maxUploadFileSize: 10 * 1024 * 1024
   },
-  modules: [{ resolve: "./src/modules/homepage-slider" }, ...(localInfrastructure ? [
+  modules: [{ resolve: "./src/modules/homepage-slider" }, { resolve: "./src/modules/branding" }, ...(localInfrastructure ? [
     { resolve: "@medusajs/medusa/fulfillment", options: { providers: [{ resolve: "@medusajs/medusa/fulfillment-manual", id: "manual" }] } },
     { resolve: "@medusajs/medusa/caching", options: { in_memory: { enable: true } } },
     { resolve: "@medusajs/medusa/event-bus-local" },
