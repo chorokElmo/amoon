@@ -15,24 +15,24 @@ export default async function checkOperations({ container }: ExecArgs) {
   const { data: recentOrders } = await query.graph({ entity: "order", fields: ["id", "display_id", "currency_code", "total", "metadata", "payment_collections.status", "fulfillments.id", "shipping_methods.name", "shipping_methods.amount"], pagination: { take: 5, order: { created_at: "DESC" } } });
   const region = regions[0];
   const location = locations.length === 1 ? locations[0] : undefined;
-  const published = products.filter(p => p.status === "published" && p.sales_channels?.some(c => c?.id === settings.sales_channel_id));
+  const published = products.filter(p => p.status === "published" && p.sales_channels?.some((c: { id: string } | null) => c?.id === settings.sales_channel_id));
   const checks = {
     owner_account_exists: ownerCount > 0,
-    morocco_mad_region: region?.currency_code === "mad" && !!region.countries?.some(c => c?.iso_2 === "ma"),
-    manual_cod_linked: !!region?.payment_providers?.some(p => p?.id === "pp_system_default"),
+    morocco_mad_region: region?.currency_code === "mad" && !!region.countries?.some((c: { iso_2: string } | null) => c?.iso_2 === "ma"),
+    manual_cod_linked: !!region?.payment_providers?.some((p: { id: string } | null) => p?.id === "pp_system_default"),
     storefront_channel_enabled: channels.length === 1 && channels[0].is_disabled === false,
     unique_dispatch_location: !!location,
-    location_channel_linked: !!location?.sales_channels?.some(c => c?.id === settings.sales_channel_id),
-    manual_fulfillment_linked: !!location?.fulfillment_providers?.some(p => p?.id === "manual_manual"),
+    location_channel_linked: !!location?.sales_channels?.some((c: { id: string } | null) => c?.id === settings.sales_channel_id),
+    manual_fulfillment_linked: !!location?.fulfillment_providers?.some((p: { id: string } | null) => p?.id === "manual_manual"),
     dispatch_address_entered: !!(location?.address?.address_1 && location.address.city && location.address.country_code === "ma"),
   };
   console.log(JSON.stringify({ checks, published_products: published.length, existing_orders: orderCount,
     recent_orders: recentOrders.map(o => ({ reference: o.display_id, currency: o.currency_code, total: o.total,
-      payment_collection_statuses: o.payment_collections?.map(p => p?.status) ?? [], fulfillment_count: o.fulfillments?.length ?? 0,
+      payment_collection_statuses: o.payment_collections?.map((p: { status: string } | null) => p?.status) ?? [], fulfillment_count: o.fulfillments?.length ?? 0,
       cod_marked: o.metadata?.amoon_payment_method === "cash_on_delivery",
-      delivery: o.shipping_methods?.map(s => ({ name: s?.name, amount: s?.amount })) })),
+      delivery: o.shipping_methods?.map((s: { name: string; amount: unknown } | null) => ({ name: s?.name, amount: s?.amount })) })),
     catalog_review: published.map(p => ({ title: p.title, photographs_present: !!p.thumbnail || !!p.images?.length,
-      unmanaged_variants: p.variants?.filter(v => v && !v.manage_inventory).length ?? 0 })),
+      unmanaged_variants: p.variants?.filter((v: { manage_inventory?: boolean } | null) => v && !v.manage_inventory).length ?? 0 })),
     note: "Read-only. Missing dispatch details and unmanaged stock need owner review. Counts do not verify successful delivery or cash collection."
   }, null, 2));
 }

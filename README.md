@@ -1,5 +1,9 @@
 # Amoon Collection
 
+**Unified store setup:** see [the scripts guide](scripts/README.md) for Docker commands,
+setup scopes, and the script inventory. All preconfiguration is in
+`apps/medusa/src/scripts/setup-store.ts`; all regression tests run with `npm test`.
+
 **New server installation:** follow [the production setup guide](docs/new-server.md).
 It includes a separate PostgreSQL 18/Redis/HTTPS Compose stack, secure environment
 generation, existing-store transfer, owner invitations and private backups.

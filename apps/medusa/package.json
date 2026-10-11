@@ -4,14 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "medusa develop",
-    "build": "node scripts/build.mjs",
+    "build": "node ../../scripts/build-medusa.mjs",
     "start": "medusa start",
     "db:migrate": "medusa db:migrate",
-    "setup:catalog": "medusa exec ./src/scripts/setup-catalog.ts",
-    "setup:fashion": "medusa exec ./src/scripts/setup-fashion-catalog.ts",
-    "test:fashion": "node --test scripts/fashion-catalog-tests.mjs",
+    "setup:catalog": "medusa exec ./src/scripts/setup-store.ts catalog",
+    "setup:fashion": "medusa exec ./src/scripts/setup-store.ts fashion",
+    "test:fashion": "node --test ../../tests/medusa-setup.test.mjs",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "setup:store": "medusa exec ./src/scripts/setup-store.ts"
   },
   "dependencies": {
     "@medusajs/admin-sdk": "2.21.2",

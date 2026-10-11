@@ -6,29 +6,40 @@ dc() { docker compose --env-file .env.production -f docker-compose.production.ym
 dc config --quiet
 case "${1:-}" in
   build) dc build ;;
-  start) dc up -d --wait postgres redis medusa worker storefront proxy ;;
+  start) dc up -d --wait postgres redis medusa worker storefront ;;
   status) dc ps ;;
-  logs) dc logs --tail=100 medusa worker storefront proxy ;;
+  logs) dc logs --tail=100 medusa worker storefront ;;
   doctor)
     docker run --rm --env-file .env.production --mount "type=bind,src=$PWD/scripts/server-check.mjs,dst=/checks/check.mjs,readonly" node:22-bookworm-slim node /checks/check.mjs
     ;;
   install)
     bash scripts/server.sh build
     bash scripts/server.sh start
-    bash scripts/server.sh catalog
+    bash scripts/server.sh setup
     if [[ -n "${2:-}" ]]; then bash scripts/server.sh invite "$2"; fi
     bash scripts/server.sh doctor
     ;;
-  catalog)
-    dc exec -T medusa npx medusa exec ./src/scripts/setup-catalog.js
-    dc exec -T -e AMOON_DELIVERY_FEE=0 medusa npx medusa exec ./src/scripts/setup-checkout.js
+  setup|catalog)
+    scope=${2:-all}
+    [[ "$1" != 'catalog' ]] || scope=core
+    case "$scope" in all|core|catalog|checkout|fashion) ;; *) echo 'Unknown setup scope.' >&2; exit 1 ;; esac
+    mode=${3:-}
+    [[ -z "$mode" || "$mode" == 'preview' ]] || { echo 'Optional mode must be preview.' >&2; exit 1; }
+    setup_args=("$scope")
+    [[ -z "$mode" ]] || setup_args+=("$mode")
+    dc exec -T -e MEDUSA_WORKER_MODE=shared medusa node node_modules/@medusajs/cli/cli.js exec ./src/scripts/setup-store.js "${setup_args[@]}"
+    if [[ "$mode" == 'preview' || "$scope" == 'fashion' ]]; then exit 0; fi
     for pair in 'MEDUSA_PUBLISHABLE_KEY:publishable_key' 'MEDUSA_REGION_ID:region_id' 'MEDUSA_SALES_CHANNEL_ID:sales_channel_id'; do
       key=${pair%%:*}; field=${pair#*:}
       value=$(dc exec -T medusa node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('.catalog-setup.json','utf8')).$field)")
       [[ "$value" =~ ^[A-Za-z0-9_]+$ ]] || { echo 'Invalid catalog connection output.' >&2; exit 1; }
-      sed -i "s/^$key=.*/$key=$value/" .env.production
+      if grep -q "^$key=" .env.production; then
+        sed -i "s/^$key=.*/$key=$value/" .env.production
+      else
+        printf '%s=%s\n' "$key" "$value" >> .env.production
+      fi
     done
-    dc up -d --force-recreate storefront
+    dc up -d --no-deps --force-recreate --wait storefront
     echo 'Real Morocco/MAD catalog connected; free delivery/COD configured. No sample products created.'
     ;;
   invite)
@@ -59,5 +70,5 @@ case "${1:-}" in
     dc exec -T postgres sh -c 'pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --exit-on-error --single-transaction --no-owner --no-privileges' < "$source_dir/database.dump"
     echo 'Database and media restored into the empty production installation. Now run start, then catalog.'
     ;;
-  *) echo 'Usage: bash scripts/server.sh {install [EMAIL]|build|start|catalog|invite EMAIL|doctor|status|logs|backup|restore BACKUP_FOLDER}' >&2; exit 1 ;;
+  *) echo 'Usage: bash scripts/server.sh {install [EMAIL]|build|start|setup [all|core|catalog|checkout|fashion] [preview]|catalog|invite EMAIL|doctor|status|logs|backup|restore BACKUP_FOLDER}' >&2; exit 1 ;;
 esac

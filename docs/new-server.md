@@ -72,9 +72,13 @@ Verify actual product photos, MAD prices, inventory and saved orders before laun
 
 ```bash
 bash scripts/server.sh start
-bash scripts/server.sh catalog
+bash scripts/server.sh setup
 bash scripts/server.sh invite your-own-email@example.com
 ```
+
+The unified setup includes Morocco/MAD, the storefront channel/key, free shipping,
+COD and fashion taxonomy. Use `setup core` to omit taxonomy. See the
+[script inventory and scope reference](../scripts/README.md).
 
 The invitation output is stored privately at `.local/server-admin-invite.txt`.
 Use its token in `https://api.yourdomain.com/app/invite?token=YOUR_TOKEN` to choose

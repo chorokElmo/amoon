@@ -19,7 +19,9 @@ npm run setup:store
 Morocco region with MAD and the Amoon Storefront channel/key, configures the
 Amoon Collection stock location and its channel/provider links, creates the
 Morocco shipping zone and free delivery option (0 MAD), and enables manual cash
-on delivery. It then fills the root and storefront `.env` connection values.
+on delivery, and creates the fashion categories, types, tags and collections.
+It then fills the root and storefront `.env` connection values while preserving
+your public website origin. Use `-- --scope core` to omit fashion taxonomy.
 It targets a local database only. You do not need to import `db.sql` first.
 Preview these steps without changing anything with `npm run setup:store -- --plan`.
 
@@ -66,14 +68,15 @@ loopback URL (`localhost`, `127.0.0.1` or `[::1]`). Public server URLs retain
 Secure cookies and need HTTPS. This prevents a successful local login from
 immediately returning to the login page because no session cookie was issued.
 
-This configures catalog and checkout in the existing `medusa` service, copies the
+This configures catalog, checkout and fashion taxonomy in the existing `medusa` service, copies the
 generated key/region/channel to the root `.env` and existing storefront `.env`,
 then recreates only `storefront` so Compose loads the updated environment. The
 container uses `http://medusa:9000` internally; editing the application `.env`
 alone does not change its environment. A plain container restart is insufficient.
 The database must already be migrated, as it is when the normal Compose stack
-starts successfully. The running image must contain the catalog and checkout
-scripts. Use `-Plan` to preview without changes. If you started your stack with a
+starts successfully. Rebuild the backend image after pulling the unified setup
+script. Use `-Scope core` to omit taxonomy, `-Plan` for a launcher plan, or
+`-Preview` to preview setup against a running backend. If you started your stack with a
 different Compose/env file, supply the same files using `-ComposeFile` and
 `-EnvFile`.
 

@@ -6,6 +6,7 @@ COPY apps/medusa/package.json apps/medusa/package.json
 RUN npm ci
 RUN mkdir -p apps/medusa/node_modules
 COPY apps/medusa apps/medusa
+COPY scripts/build-medusa.mjs scripts/build-medusa.mjs
 ARG MEDUSA_BACKEND_URL
 ENV MEDUSA_BACKEND_URL=$MEDUSA_BACKEND_URL
 # Build-only values; never used as runtime credentials.
