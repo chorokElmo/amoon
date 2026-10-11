@@ -28,7 +28,9 @@
     "check:operations": "node scripts/check-operations.mjs",
     "qa:native": "node scripts/qa-native.mjs",
     "backup:native": "node scripts/backup-native.mjs",
-    "check:release": "node scripts/check-release.mjs"
+    "check:release": "node scripts/check-release.mjs",
+    "test:slider": "node --test scripts/test-slider.mjs",
+    "test:slider:integration": "node --test scripts/test-slider-integration.mjs"
   },
   "devDependencies": {
     "eslint": "10.12.0",
