@@ -4,6 +4,7 @@ import "./globals.css";
 import "./reference.css";
 import { Header } from "@/components/storefront/header";
 import { Footer } from "@/components/storefront/footer";
+import { WhatsAppButton } from "@/components/storefront/whatsapp-button";
 import { locale } from "@/lib/i18n";
 import { siteOrigin } from "@/lib/seo";
 
@@ -22,5 +23,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang={locale.language} dir={locale.direction}><body><a className="skip-link" href="#main-content">Aller au contenu</a><Header/><main id="main-content" tabIndex={-1}>{children}</main><Footer/></body></html>;
+  return <html lang={locale.language} dir={locale.direction}><body><a className="skip-link" href="#main-content">Aller au contenu</a><Header/><main id="main-content" tabIndex={-1}>{children}</main><Footer/><WhatsAppButton/></body></html>;
 }
