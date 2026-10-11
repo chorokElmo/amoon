@@ -79,3 +79,11 @@
 @media(max-width:800px) { .sliderControls { width:100%; max-width:420px; margin-inline:auto; justify-content:center; padding-top:15px; gap:17px; } .progress button { width:37px; } .arrows { margin-left:auto; } .counter { font-size:11px; } }
 @media(max-width:350px) { .sliderControls { gap:10px; } .progress button { width:26px; } }
 @media(prefers-reduced-motion:reduce) { .photo img { transition:none; } }
+.slideTitle { overflow-wrap:anywhere; }
+.hero .slideTitle em { white-space:pre-line; }
+.slideDescription { white-space:pre-line; overflow-wrap:anywhere; }
+.progress { flex:1; min-width:0; }
+.progress button { flex:1; min-width:0; max-width:47px; }
+.counter,.arrows { flex-shrink:0; }
+.label,.primary,.secondary { overflow-wrap:anywhere; }
+@media(min-width:801px) { .hero { height:auto; min-height:max(650px,calc(100svh - 126px)); } }
