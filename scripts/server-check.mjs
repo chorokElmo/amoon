@@ -5,15 +5,18 @@ import path from "node:path";
 export function configurationChecks(env) {
   const origin = value => { try { const u = new URL(value); return u.protocol === "https:" && !u.username && !u.password && u.pathname === "/" && !u.search && !u.hash && !["localhost", "127.0.0.1", "[::1]"].includes(u.hostname); } catch { return false; } };
   const includes = (value, wanted) => (value || "").split(",").map(x => x.trim()).includes(wanted);
+  const allowedOrigins = (value, allowed) => (value || "").split(",").map(x => x.trim()).every(x => origin(x) && allowed.includes(x));
   const secrets = [env.POSTGRES_PASSWORD, env.JWT_SECRET, env.COOKIE_SECRET, env.CART_COOKIE_SECRET];
   return {
     public_origins: origin(env.STOREFRONT_URL) && origin(env.MEDUSA_BACKEND_URL),
     cors_matches_origins: includes(env.STORE_CORS, env.STOREFRONT_URL) && includes(env.ADMIN_CORS, env.MEDUSA_BACKEND_URL) && includes(env.AUTH_CORS, env.STOREFRONT_URL) && includes(env.AUTH_CORS, env.MEDUSA_BACKEND_URL),
+    cors_allowed_origins: allowedOrigins(env.STORE_CORS, [env.STOREFRONT_URL]) && allowedOrigins(env.ADMIN_CORS, [env.MEDUSA_BACKEND_URL]) && allowedOrigins(env.AUTH_CORS, [env.STOREFRONT_URL, env.MEDUSA_BACKEND_URL]),
     independent_secrets: secrets.every(s => typeof s === "string" && s.length >= 32) && new Set(secrets).size === 4,
     database_password_url_safe: /^[A-Za-z0-9_-]{32,}$/.test(env.POSTGRES_PASSWORD || ""),
     catalog_configured: /^pk_/.test(env.MEDUSA_PUBLISHABLE_KEY || "") && /^reg_/.test(env.MEDUSA_REGION_ID || "") && /^sc_/.test(env.MEDUSA_SALES_CHANNEL_ID || ""),
     admin_same_origin: !env.MEDUSA_ADMIN_BACKEND_URL || env.MEDUSA_ADMIN_BACKEND_URL === "/" || env.MEDUSA_ADMIN_BACKEND_URL === env.MEDUSA_BACKEND_URL,
     public_media_origin_allowed: includes(env.PRODUCT_IMAGE_ORIGINS, env.MEDUSA_BACKEND_URL),
+    demo_disabled: env.HOMEPAGE_DEMO !== "true",
   };
 }
 

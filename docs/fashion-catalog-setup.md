@@ -1,6 +1,6 @@
 # Fashion catalog setup
 
-`apps/medusa/src/scripts/setup-fashion-catalog.ts` creates the proposed English
+`apps/medusa/src/scripts/setup-store.ts` (the `fashion` scope) creates the proposed English
 taxonomy: Women, Men, Jewelry and Kids with nested categories; clothing,
 footwear, bag, accessory and jewelry types; six curated collections; and a
 controlled set of tags. Edit the arrays before running if you do not sell all
@@ -24,13 +24,13 @@ and worker; the database must be healthy and migrations must succeed.
 
 ```powershell
 docker compose up -d --build --wait medusa worker
-docker compose exec -T -e MEDUSA_WORKER_MODE=shared -e AMOON_TAXONOMY_DRY_RUN=true medusa node node_modules/@medusajs/cli/cli.js exec ./src/scripts/setup-fashion-catalog.js
+docker compose exec -T -e MEDUSA_WORKER_MODE=shared medusa node node_modules/@medusajs/cli/cli.js exec ./src/scripts/setup-store.js fashion preview
 ```
 
 After reviewing the preview, create the records:
 
 ```powershell
-docker compose exec -T -e MEDUSA_WORKER_MODE=shared medusa node node_modules/@medusajs/cli/cli.js exec ./src/scripts/setup-fashion-catalog.js
+docker compose exec -T -e MEDUSA_WORKER_MODE=shared medusa node node_modules/@medusajs/cli/cli.js exec ./src/scripts/setup-store.js fashion
 ```
 
 ## Docker on the server
@@ -39,12 +39,12 @@ Use the same Compose and environment files used to start the server:
 
 ```bash
 docker compose --env-file .env.production -f docker-compose.production.yml up -d --build --wait medusa worker
-docker compose --env-file .env.production -f docker-compose.production.yml exec -T -e MEDUSA_WORKER_MODE=shared -e AMOON_TAXONOMY_DRY_RUN=true medusa node node_modules/@medusajs/cli/cli.js exec ./src/scripts/setup-fashion-catalog.js
+docker compose --env-file .env.production -f docker-compose.production.yml exec -T -e MEDUSA_WORKER_MODE=shared medusa node node_modules/@medusajs/cli/cli.js exec ./src/scripts/setup-store.js fashion preview
 ```
 
-Remove `-e AMOON_TAXONOMY_DRY_RUN=true` from the last command to apply it. If
+Remove the final `preview` argument to apply it. If
 `migrate` fails, inspect its logs and fix that error before running the taxonomy.
-This script is separate from the Morocco/MAD, shipping and COD setup.
+The `fashion` scope runs only taxonomy. The default `all` scope also configures Morocco/MAD, shipping and COD.
 
 ## Without Docker
 

@@ -1,6 +1,9 @@
 param(
     [string]$ComposeFile = 'docker-compose.yml',
     [string]$EnvFile = '.env',
+    [ValidateSet('all', 'core', 'catalog', 'checkout', 'fashion')]
+    [string]$Scope = 'all',
+    [switch]$Preview,
     [switch]$Start,
     [switch]$Plan
 )
@@ -9,13 +12,18 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $projectRoot
 try {
+    if ($Preview -and $Start) { throw 'Use -Preview with an already running backend; omit -Start.' }
     $composeArgs = @('compose', '--env-file', $EnvFile, '-f', $ComposeFile)
     if ($Plan) {
+        Write-Output ('Unified setup scope: ' + $Scope + '; preview: ' + $Preview)
         if ($Start) { Write-Output 'Build and start Medusa, its worker and database dependencies; wait for readiness.' }
-        Write-Output 'Use the existing Medusa container to configure Morocco/MAD, the sales channel and publishable key.'
-        Write-Output 'Configure the stock location, free Morocco shipping and cash on delivery.'
-        Write-Output 'Copy connection values to the Compose env file and existing storefront .env.'
-        Write-Output 'Recreate only the storefront container to load those values. No changes made.'
+        Write-Output 'Run the selected scope through the unified Medusa setup entry point.'
+        if ($Preview) { Write-Output 'Preview only; no setup writes or environment synchronization.' }
+        elseif ($Scope -ne 'fashion') {
+            Write-Output 'Copy connection values to the Compose env file and existing storefront .env.'
+            Write-Output 'Recreate only the storefront container to load those values.'
+        }
+        Write-Output 'No changes made.'
         return
     }
     if (!(Test-Path -LiteralPath $EnvFile -PathType Leaf)) { throw "Missing Compose environment file: $EnvFile" }
@@ -35,9 +43,11 @@ try {
         throw 'Medusa is not running in this Compose project. Rerun this script with -Start to build/start it. If startup fails, inspect docker compose logs --tail 80 migrate medusa. For another stack, supply its -ComposeFile and -EnvFile.'
     }
 
-    # The Dockerfile compiles Medusa scripts to JavaScript under /app/src/scripts.
-    Invoke-Compose -DockerArguments @('exec', '-T', '-e', 'MEDUSA_WORKER_MODE=shared', 'medusa', 'node', 'node_modules/@medusajs/cli/cli.js', 'exec', './src/scripts/setup-catalog.js')
-    Invoke-Compose -DockerArguments @('exec', '-T', '-e', 'MEDUSA_WORKER_MODE=shared', '-e', 'AMOON_DELIVERY_FEE=0', 'medusa', 'node', 'node_modules/@medusajs/cli/cli.js', 'exec', './src/scripts/setup-checkout.js')
+    # All business configuration lives in the compiled Medusa setup entry point.
+    $setupArgs = @('exec', '-T', '-e', 'MEDUSA_WORKER_MODE=shared', 'medusa', 'node', 'node_modules/@medusajs/cli/cli.js', 'exec', './src/scripts/setup-store.js', $Scope)
+    if ($Preview) { $setupArgs += 'preview' }
+    Invoke-Compose -DockerArguments $setupArgs
+    if ($Preview -or $Scope -eq 'fashion') { return }
 
     # Capture privately: do not print generated connection values.
     $catalogJson = Invoke-Compose -DockerArguments @('exec', '-T', 'medusa', 'node', '-p', "JSON.stringify(require('./.catalog-setup.json'))")
