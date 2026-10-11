@@ -30,6 +30,6 @@ export function HeroSlider({ slides, cod = true, customExchange = false }: { sli
       const point = event.changedTouches[0]; const dx = point.clientX - touch.current.x; const dy = point.clientY - touch.current.y;
       if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) change(active + (dx < 0 ? 1 : -1));
       touch.current = null;
-    }}><Image key={slide.id} src={slide.image_url} alt={slide.image_alt} fill quality={90} loading="eager" sizes="(max-width: 800px) 100vw, 55vw" style={{ objectPosition: slide.position, transform: `scale(${slide.zoom})`, transformOrigin: slide.position }}/></div>
+    }}><Image key={slide.id} src={slide.image_url} alt={slide.image_alt} fill quality={90} loading="eager" fetchPriority={active === 0 ? "high" : "auto"} sizes="(max-width: 800px) 100vw, 55vw" style={{ objectPosition: slide.position, transform: `scale(${slide.zoom})`, transformOrigin: slide.position }}/></div>
   </section>;
 }

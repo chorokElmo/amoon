@@ -16,14 +16,14 @@ for (const name of ["catalog-model", "medusa-catalog", "catalog-media", "product
   writeFileSync(join(scratch, name + ".js"), ts.transpileModule(code, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText);
 }
 const require = createRequire(import.meta.url);
-const { parseFilters, normalizeProduct, selectCatalog, catalogQuery, groupByHandle } = require(join(scratch, "catalog-model.js"));
+const { parseFilters, normalizeProduct, selectCatalog, catalogQuery, groupByHandle, visibleCategories } = require(join(scratch, "catalog-model.js"));
 const { readMedusaCatalog } = require(join(scratch, "medusa-catalog.js"));
 const { mediaTarget } = require(join(scratch, "catalog-media.js"));
 const { selectedVariant, relatedProducts, variantLabel } = require(join(scratch, "product-model.js"));
 const { signCart, readCartCookie, CART_AGE } = require(join(scratch, "cart-cookie.js"));
 const { parseCartAction, normalizeCart, medusaCart } = require(join(scratch, "medusa-cart.js"));
 const { parseCustomer, proof, validProof } = require(join(scratch, "checkout-model.js"));
-const { medusaCheckout, orderReceipt, reviewData } = require(join(scratch, "medusa-checkout.js"));
+const { medusaCheckout, orderReceipt } = require(join(scratch, "medusa-checkout.js"));
 const { siteOrigin, productSchema, serializeJsonLd, catalogMetadata, breadcrumbSchema, brandSchema } = require(join(scratch, "seo.js"));
 const { setAnalyticsConsent, trackPageView } = require(join(scratch, "analytics.js"));
 test("restored localhost media resolves to internal storage without changing product records", () => {
@@ -165,6 +165,25 @@ test("category names/handles resolve and parent categories include descendants",
   assert.equal(selectCatalog(catalog, parseFilters({ categorie: "Robes" })).total, 1);
   assert.equal(selectCatalog(catalog, parseFilters({ categorie: "unknown" })).total, 0);
   assert.equal(selectCatalog(catalog, parseFilters({}), { kind: "category", id: "robes" }).total, 1);
+});
+test("duplicate category labels display once while retaining products and alias routes", () => {
+  const categories = [group("robes"), group("robes-copy", { name: " ROBES " }), group("maxi", { parentId: "robes-copy" })];
+  const catalog = data([rawProduct("a", 399, { categories: [{ id: "robes" }] }), rawProduct("b", 399, { categories: [{ id: "maxi" }] })], categories);
+  assert.equal(visibleCategories(categories).length, 2);
+  assert.equal(selectCatalog(catalog, parseFilters({ categorie: "robes" })).total, 2);
+  assert.equal(selectCatalog(catalog, parseFilters({}), { kind: "category", id: "robes-copy" }).total, 2);
+  assert.equal(groupByHandle(catalog, "robes-copy").group.id, "robes-copy");
+});
+test("size and color facets use actual Medusa options, including embedded option titles", () => {
+  const product = rawProduct("options", 399);
+  product.options = [];
+  product.variants[0].options = [{ option_id: "size", value: "M", option: { title: "Taille" } }, { option_id: "color", value: "Bordeaux", option: { title: "Couleur" } }];
+  const selection = select([product]);
+  assert.deepEqual(selection.sizes, ["M"]);
+  assert.deepEqual(selection.colors, ["Bordeaux"]);
+  product.variants[0].options = [{ option_id: "default", value: "Default option value", option: { title: "Default option" } }];
+  assert.deepEqual(select([product]).sizes, []);
+  assert.deepEqual(select([product]).colors, []);
 });
 test("collection scope cannot leak products from other collections", () => {
   const catalog = data([rawProduct("a", 399, { collection_id: "essential" }), rawProduct("b", 399, { collection_id: "other" })], [group("robes")], [group("essential")]);

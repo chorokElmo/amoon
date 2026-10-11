@@ -3,7 +3,7 @@ import { useId, useState } from "react";
 import Link from "next/link";
 import { Sheet } from "@/components/ui/sheet";
 import { buttonClass } from "@/components/ui/button";
-import { fold, catalogQuery, type CatalogGroup, type Filters } from "@/lib/catalog-model";
+import { fold, catalogQuery, visibleCategories, type CatalogGroup, type Filters } from "@/lib/catalog-model";
 
 type Props = { action: string; filters: Filters; categories: CatalogGroup[]; sizes: string[]; colors: string[]; fixedCategory: boolean };
 function FilterForm({ action, filters, categories, sizes, colors, fixedCategory }: Props) {
@@ -14,9 +14,9 @@ function FilterForm({ action, filters, categories, sizes, colors, fixedCategory 
   return <form action={action} method="get" className="catalog-filter-form" key={JSON.stringify(filters)}>
     {filters.q && <input type="hidden" name="q" value={filters.q}/>}<input type="hidden" name="tri" value={filters.sort}/>
     {filters.universe && <input type="hidden" name="univers" value={filters.universe}/>}
-    {!fixedCategory && choices("Catégories", "categorie", categories.map(group => ({ value: group.handle, label: group.name })), filters.categories)}
-    {choices("Taille", "taille", sizes.map(value => ({ value, label: value })), filters.sizes)}
-    {choices("Couleur", "couleur", colors.map(value => ({ value, label: value })), filters.colors)}
+    {!fixedCategory && choices("Catégories", "categorie", visibleCategories(categories).map(group => ({ value: group.handle, label: group.name })), filters.categories.map(value => categories.find(group => [group.id, group.handle, group.name].some(alias => fold(alias) === fold(value)))?.name || value))}
+    {sizes.length > 0 && choices("Taille", "taille", sizes.map(value => ({ value, label: value })), filters.sizes)}
+    {colors.length > 0 && choices("Couleur", "couleur", colors.map(value => ({ value, label: value })), filters.colors)}
     <fieldset><legend>Prix en MAD</legend><div className="filter-price"><div><label htmlFor={id + "-min"}>Minimum</label><input id={id + "-min"} name="min" type="number" min="0" max="9999999" step="0.01" defaultValue={filters.min ?? ""} placeholder="0"/></div><div><label htmlFor={id + "-max"}>Maximum</label><input id={id + "-max"} name="max" type="number" min="0" max="9999999" step="0.01" defaultValue={filters.max ?? ""} placeholder="Sans limite"/></div></div></fieldset>
     <fieldset><legend>Disponibilité</legend><label className="filter-stock"><input name="disponible" type="checkbox" value="1" defaultChecked={filters.available}/> En stock uniquement</label></fieldset>
     {filters.issues.length > 0 && <p className="filter-validation" role="alert">{filters.issues.join(" ")}</p>}
