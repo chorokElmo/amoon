@@ -13,7 +13,7 @@ export function checkoutService() {
   });
 }
 export async function checkoutCartId() { return readCartCookie((await cookies()).get(CART_COOKIE)?.value, process.env.CART_COOKIE_SECRET || ""); }
-export function checkoutImages(state: Checkout) { return { ...state, cart: cartImages(state.cart) }; }
+export async function checkoutImages(state: Checkout) { return { ...state, cart: await cartImages(state.cart) }; }
 export function receiptCookie(id: string) { if (!/^order_[a-zA-Z0-9]+$/.test(id)) throw new CheckoutError("Confirmation indisponible.", 503); return id + "." + proof({ orderId: id }, process.env.CART_COOKIE_SECRET || "", Math.floor(Date.now() / 1000) + 86400); }
 export async function currentReceipt() {
   const value = (await cookies()).get(RECEIPT_COOKIE)?.value || ""; const parts = value.split(".");

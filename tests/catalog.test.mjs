@@ -11,7 +11,7 @@ import ts from "typescript";
 // Strict typechecking remains a separate required check.
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../apps/storefront");
 const scratch = mkdtempSync(join(tmpdir(), "amoon-catalog-tests-"));
-for (const name of ["catalog-model", "medusa-catalog", "catalog-media", "product-model", "cart-cookie", "medusa-cart", "checkout-model", "medusa-checkout", "seo", "analytics"]) {
+for (const name of ["product-localization", "catalog-model", "medusa-catalog", "catalog-media", "product-model", "cart-cookie", "medusa-cart", "checkout-model", "medusa-checkout", "seo", "analytics"]) {
   const code = readFileSync(join(root, "src/lib", name + ".ts"), "utf8");
   writeFileSync(join(scratch, name + ".js"), ts.transpileModule(code, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText);
 }
@@ -19,7 +19,7 @@ const require = createRequire(import.meta.url);
 const { parseFilters, normalizeProduct, selectCatalog, catalogQuery, groupByHandle, visibleCategories } = require(join(scratch, "catalog-model.js"));
 const { readMedusaCatalog } = require(join(scratch, "medusa-catalog.js"));
 const { mediaTarget } = require(join(scratch, "catalog-media.js"));
-const { selectedVariant, relatedProducts, variantLabel } = require(join(scratch, "product-model.js"));
+const { selectedVariant, relatedProducts, variantLabel, variantForOptions } = require(join(scratch, "product-model.js"));
 const { signCart, readCartCookie, CART_AGE } = require(join(scratch, "cart-cookie.js"));
 const { parseCartAction, normalizeCart, medusaCart } = require(join(scratch, "medusa-cart.js"));
 const { parseCustomer, proof, validProof } = require(join(scratch, "checkout-model.js"));
@@ -92,6 +92,16 @@ test("variant selection accepts only IDs belonging to the current product", () =
   assert.equal(selected.price, 499);
   assert.equal(selected.stock, "out_of_stock");
   assert.deepEqual(selected.sizes, ["M"]);
+});
+test("size/color choices require a complete existing Medusa combination", () => {
+  const product = normalizeProduct(rawProduct("options", 399, { variants: [variant("s-noir", "S", "Noir", 399, 1), variant("m-beige", "M", "Beige", 499, 0)] }));
+  assert.equal(variantForOptions(product, { Taille: "S" }), null);
+  assert.equal(variantForOptions(product, { Taille: "S", Couleur: "Beige" }), null);
+  assert.equal(variantForOptions(product, { Taille: "S", Couleur: "Noir", Invented: "yes" }), null);
+  assert.equal(variantForOptions(product, { Taille: "S", Couleur: "Noir" }).id, "s-noir");
+  const soldOut = variantForOptions(product, { Taille: "M", Couleur: "Beige" });
+  assert.equal(soldOut.price, 499);
+  assert.equal(soldOut.stock, "out_of_stock");
 });
 test("a unique variant is selected without fabricating a missing MAD price", () => {
   const product = normalizeProduct(rawProduct("single", 399, { variants: [variant("single-v", "M", "Noir", 399, 1, { calculated_price: null })] }));

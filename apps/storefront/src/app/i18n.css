@@ -1,0 +1,32 @@
+.language-switcher { display:inline-flex; align-items:center; gap:6px; white-space:nowrap; }
+.language-switcher button { border:0; background:transparent; color:var(--color-taupe); min-height:44px; padding:8px 6px; font-size:12px; }
+html[lang=ar] .language-switcher button[lang=ar] { font-family:var(--font-cairo),sans-serif; }
+.language-switcher button[aria-pressed=true] { color:var(--wine); font-weight:600; text-decoration:underline; text-underline-offset:5px; }
+.language-switcher button:focus-visible { outline:2px solid var(--color-ink); outline-offset:2px; }
+.language-switcher-wrap > p { font-size:12px; max-width:240px; }
+.mobile-language { display:none; }
+html[lang=ar] { --font-sans:var(--font-tajawal),Arial,sans-serif; --font-serif:var(--font-cairo),Arial,sans-serif; }
+html[lang=ar] body { font-family:var(--font-tajawal),Arial,sans-serif; line-height:1.8; }
+html[lang=ar] :is(h1,h2,h3,h4,nav,button,.button,.announcement,.eyebrow,.hero-slider a) { font-family:var(--font-cairo),Arial,sans-serif; letter-spacing:0; line-height:1.6; }
+html[lang=ar] :is(p,label,input,textarea,select) { font-family:var(--font-tajawal),Arial,sans-serif; letter-spacing:0; }
+html[lang=ar] :is(h1,h2,h3) em { font-style:normal; }
+html[lang=ar] :is(.eyebrow,.button,button) { text-transform:none; }
+html[lang=ar] :is(p,.product-plain-text) { line-height:1.9; }
+html[lang=ar] .hero-slider h1 em { white-space:normal; }
+html[lang=ar] svg[data-icon=arrow] { transform:scaleX(-1); }
+html[dir=rtl] .category-editorial .shop-story:hover span svg[data-icon=arrow] { transform:translateX(-4px) scaleX(-1); }
+html[dir=rtl] .mobile-nav a::after { content:'←'; }
+html[dir=rtl] .mobile-nav a:hover::after { transform:translateX(-3px); }
+html[dir=rtl] .sheet--cart[open] { animation-name:drawer-enter-rtl; }
+html[dir=rtl] .sheet--menu[open] { animation-name:menu-enter-rtl; }
+@keyframes drawer-enter-rtl { from { transform:translateX(-30px); opacity:.5; } to { transform:translateX(0); opacity:1; } }
+@keyframes menu-enter-rtl { from { transform:translateX(18px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+input[type=tel],input[type=email],input[type=number],a[href^='tel:'],a[href^='mailto:'],.product-sku,.pdp-gallery-counter,.card-gallery-counter,.pdp-zoom-counter { direction:ltr; unicode-bidi:isolate; }
+.catalog-price,.product-detail-price,.cart-line-total,.cart-summary dd,.drawer-summary dd,.checkout-radio strong { unicode-bidi:plaintext; }
+.product-plain-text,.product-variant-details dd,.cart-item-details h2 { unicode-bidi:plaintext; }
+@media(max-width:1000px) {
+ .desktop-language { display:none; }
+ .mobile-language { display:flex; justify-content:flex-end; padding-block:2px; border-top:1px solid var(--line); }
+ html[dir=rtl] .header-main > .wordmark { transform:translateX(50%); }
+}
+@media(prefers-reduced-motion:reduce) { html[dir=rtl] .sheet--cart[open],html[dir=rtl] .sheet--menu[open] { animation:none; } }

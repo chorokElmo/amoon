@@ -1,9 +1,11 @@
 "use client";
+import { useTranslations } from "@/components/storefront/language-provider";
 import { useEffect, useId, useRef } from "react";
 import { Icon } from "./icon";
 export function Sheet({ open, onClose, title, children, kind = "menu" }: {
   open: boolean; onClose: () => void; title: string; children: React.ReactNode; kind?: "menu" | "search" | "cart" | "gallery";
 }) {
+  const t = useTranslations();
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   useEffect(() => {
@@ -36,7 +38,7 @@ export function Sheet({ open, onClose, title, children, kind = "menu" }: {
       const rect = event.currentTarget.getBoundingClientRect();
       if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) onClose();
     } }}>
-    <div className="sheet__heading"><h2 id={titleId}>{title}</h2><button type="button" className="icon-button" aria-label="Fermer" onClick={onClose}><Icon name="close"/></button></div>
+    <div className="sheet__heading"><h2 id={titleId}>{title}</h2><button type="button" className="icon-button" aria-label={t("Fermer")} onClick={onClose}><Icon name="close"/></button></div>
     {children}
   </dialog>;
 }

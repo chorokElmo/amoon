@@ -1,7 +1,9 @@
+import { productArabicTranslation } from "./product-localization";
 export type SearchParams = Record<string, string | string[] | undefined>;
 export type Stock = "in_stock" | "backorder" | "out_of_stock" | "unknown";
 export type CatalogVariant = { maxQuantity?: number | null; id: string; title: string; options: { name: string; value: string }[]; sku: string | null; sizes: string[]; colors: string[]; price: number | null; originalPrice: number | null; stock: Stock };
-export type CatalogProduct = { imageFit?: "contain" | "cover"; id: string; handle: string; title: string; description: string; composition?: string | null; thumbnail: string | null; images: string[]; sizeGuide: string | null; createdAt: number; popularity: number | null; categoryIds: string[]; collectionId: string | null; variants: CatalogVariant[] };
+export type ProductTranslation = { title?: string; description?: string; composition?: string; size_guide?: string; variants?: Record<string, string> };
+export type CatalogProduct = { translations?: { ar?: ProductTranslation }; searchText?: string; imageFit?: "contain" | "cover"; id: string; handle: string; title: string; description: string; composition?: string | null; thumbnail: string | null; images: string[]; sizeGuide: string | null; createdAt: number; popularity: number | null; categoryIds: string[]; collectionId: string | null; variants: CatalogVariant[] };
 export type CatalogGroup = { id: string; handle: string; name: string; description: string; parentId: string | null };
 export type CatalogData = { products: CatalogProduct[]; categories: CatalogGroup[]; collections: CatalogGroup[] };
 export const sortChoices = { newest: "Nouveautés", price_asc: "Prix croissant", price_desc: "Prix décroissant", popular: "Populaires" } as const;
@@ -43,7 +45,7 @@ export function normalizeProduct(value: unknown): CatalogProduct {
   });
   const rank = amount(record(product.metadata).popularity_rank);
   const images = [...new Set([text(product.thumbnail), ...list(product.images).map(image => text(record(image).url))].filter(Boolean))];
-  return { imageFit: record(product.metadata).image_fit === "cover" ? "cover" : "contain", id: text(product.id), handle: text(product.handle), title: text(product.title), description: text(product.description), composition: text(record(product.metadata).composition).trim().slice(0, 10000) || null, thumbnail: images[0] || null, images, sizeGuide: text(record(product.metadata).size_guide).trim().slice(0, 10000) || null, createdAt: Date.parse(text(product.created_at)) || 0, popularity: rank, categoryIds: list(product.categories).map(item => text(record(item).id)).filter(Boolean), collectionId: text(product.collection_id) || text(record(product.collection).id) || null, variants };
+  return { translations: { ar: productArabicTranslation(product.metadata) }, imageFit: record(product.metadata).image_fit === "cover" ? "cover" : "contain", id: text(product.id), handle: text(product.handle), title: text(product.title), description: text(product.description), composition: text(record(product.metadata).composition).trim().slice(0, 10000) || null, thumbnail: images[0] || null, images, sizeGuide: text(record(product.metadata).size_guide).trim().slice(0, 10000) || null, createdAt: Date.parse(text(product.created_at)) || 0, popularity: rank, categoryIds: list(product.categories).map(item => text(record(item).id)).filter(Boolean), collectionId: text(product.collection_id) || text(record(product.collection).id) || null, variants };
 }
 
 export function parseFilters(params: SearchParams, defaultSort: Filters["sort"] = "newest"): Filters {
@@ -94,7 +96,7 @@ export function selectCatalog(data: CatalogData, filters: Filters, scope?: { kin
   const categoryIds = new Set<string>();
   for (const value of filters.categories) { const group = data.categories.find(group => [group.id, group.handle, group.name].some(name => fold(name) === fold(value))); if (group) for (const id of descendantIds(data.categories, group.id)) categoryIds.add(id); }
   const query = fold(filters.q);
-  const results = filters.issues.length ? [] : scoped.filter(product => (!query || fold(product.title + " " + product.description).includes(query)) && (!filters.categories.length || product.categoryIds.some(id => categoryIds.has(id)))).map(product => ({ product, variants: matchingVariants(product, filters) })).filter(item => item.variants.length > 0 || (!filters.sizes.length && !filters.colors.length && filters.min === null && filters.max === null && !filters.available && item.product.variants.length === 0)).map(item => {
+  const results = filters.issues.length ? [] : scoped.filter(product => (!query || fold(product.searchText || product.title + " " + product.description).includes(query)) && (!filters.categories.length || product.categoryIds.some(id => categoryIds.has(id)))).map(product => ({ product, variants: matchingVariants(product, filters) })).filter(item => item.variants.length > 0 || (!filters.sizes.length && !filters.colors.length && filters.min === null && filters.max === null && !filters.available && item.product.variants.length === 0)).map(item => {
     const prices = item.variants.filter(variant => variant.price !== null).sort((a, b) => a.price! - b.price!);
     return { ...item, price: prices[0]?.price ?? null, originalPrice: prices[0]?.originalPrice ?? null, priceVaries: prices.some(variant => variant.price !== prices[0]?.price), stock: item.variants.some(v => v.stock === "in_stock") ? "in_stock" : item.variants.some(v => v.stock === "backorder") ? "backorder" : item.variants.some(v => v.stock === "unknown") ? "unknown" : "out_of_stock" };
   });
@@ -111,4 +113,4 @@ export function selectCatalog(data: CatalogData, filters: Filters, scope?: { kin
   return { items: results.slice((page - 1) * pageSize, page * pageSize), total: results.length, page, pages, sizes, colors: unique(variants.flatMap(v => v.colors)), hasPopularity: scoped.some(product => product.popularity !== null) };
 }
 export type CatalogItem = ReturnType<typeof selectCatalog>["items"][number];
-export const formatMad = (value: number) => new Intl.NumberFormat("fr-MA", { style: "currency", currency: "MAD", maximumFractionDigits: 2 }).format(value);
+export const formatMad = (value: number) => "\u2066" + new Intl.NumberFormat("fr-MA", { style: "currency", currency: "MAD", maximumFractionDigits: 2 }).format(value) + "\u2069";

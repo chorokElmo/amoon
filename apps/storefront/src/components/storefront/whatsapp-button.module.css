@@ -1,6 +1,6 @@
 .button {
   position: fixed;
-  right: max(24px, env(safe-area-inset-right));
+  inset-inline-end: max(24px, env(safe-area-inset-right), env(safe-area-inset-left));
   bottom: max(24px, env(safe-area-inset-bottom));
   z-index: 15;
   display: inline-flex;
@@ -25,6 +25,6 @@
 .button svg { flex-shrink: 0; }
 
 @media (max-width: 600px) {
-  .button { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); padding: 14px; }
+  .button { inset-inline-end: max(16px, env(safe-area-inset-right), env(safe-area-inset-left)); bottom: max(16px, env(safe-area-inset-bottom)); padding: 14px; }
   .label { display: none; }
 }

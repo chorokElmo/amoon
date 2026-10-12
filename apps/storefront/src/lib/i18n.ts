@@ -1,5 +1,16 @@
-// Route names remain stable as locale labels and direction are extended.
-export const locales = { fr: { language: "fr", direction: "ltr" } } as const;
+import arabic from "./messages-ar.json";
+// Stable URLs; the preference cookie is independent of the signed cart cookie.
+export const LOCALE_COOKIE = "amoon_locale";
+export const locales = { fr: { language: "fr", direction: "ltr" }, ar: { language: "ar", direction: "rtl" } } as const;
+export type Language = keyof typeof locales;
+export function parseLanguage(value: unknown): Language { return value === "ar" ? "ar" : "fr"; }
+export function translate(language: Language, message: string): string {
+  if (language === "fr") return message;
+  const dictionary: Record<string, string> = arabic;
+  if (Object.hasOwn(dictionary, message)) return dictionary[message];
+  const key = message.trim();
+  return !Object.hasOwn(dictionary, key) ? message : message.slice(0, message.indexOf(key)) + dictionary[key] + message.slice(message.indexOf(key) + key.length);
+}
 export const locale = locales.fr;
 export const fr = {
   announcement: "Livraison partout au Maroc",

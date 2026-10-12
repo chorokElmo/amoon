@@ -26,8 +26,8 @@ export function productSchema(product: CatalogProduct, origin: string, images: s
 export function breadcrumbSchema(origin: string, items: { name: string; path: string }[]) {
   return { "@context":"https://schema.org", "@type":"BreadcrumbList", itemListElement:items.map((item,index)=>({"@type":"ListItem",position:index+1,name:item.name,item:new URL(item.path,origin).href})) };
 }
-export function brandSchema(origin: string) {
-  return {"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":origin+"/#organization",name:"Amoon Collection",url:origin,logo:origin+"/images/amoon-logo-black.png",sameAs:["https://www.instagram.com/amoon.collection1/"]},{"@type":"WebSite","@id":origin+"/#website",name:"Amoon Collection",url:origin,inLanguage:"fr-MA",publisher:{"@id":origin+"/#organization"}}]};
+export function brandSchema(origin: string, language: "fr" | "ar" = "fr") {
+  return {"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":origin+"/#organization",name:"Amoon Collection",url:origin,logo:origin+"/images/amoon-logo-black.png",sameAs:["https://www.instagram.com/amoon.collection1/"]},{"@type":"WebSite","@id":origin+"/#website",name:"Amoon Collection",url:origin,inLanguage:language === "ar" ? "ar-MA" : "fr-MA",publisher:{"@id":origin+"/#organization"}}]};
 }
 export function catalogMetadata(title: string, description: string, canonical: string, query: Record<string,string|string[]|undefined>) {
   const filtered=Object.entries(query).some(([key,value])=>!['page','univers'].includes(key)&&Boolean(Array.isArray(value)?value.some(Boolean):value));

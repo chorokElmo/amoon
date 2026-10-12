@@ -1,10 +1,12 @@
 "use client";
+import { useTranslations } from "@/components/storefront/language-provider";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/icon";
 import { usePathname } from "next/navigation";
 import type { Cart } from "@/lib/medusa-cart";
 export function CartLink({ onClick }: { onClick: () => void }) {
+  const t = useTranslations();
   const [count, setCount] = useState<number | null>(null);
   const pathname = usePathname();
   useEffect(() => {
@@ -16,5 +18,5 @@ export function CartLink({ onClick }: { onClick: () => void }) {
     void refresh(); window.addEventListener("amoon:cart", refresh); window.addEventListener("focus", refresh);
     return () => { active = false; window.removeEventListener("amoon:cart", refresh); window.removeEventListener("focus", refresh); };
   }, [pathname]);
-  return <Link href="/panier" className="icon-button cart-link" aria-haspopup="dialog" aria-label={count ? `Panier, ${count} article${count > 1 ? "s" : ""}` : "Panier"} onClick={event => { if (!event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) { event.preventDefault(); onClick(); } }}><Icon name="bag"/>{count !== null && count > 0 && <span className="cart-count" aria-hidden="true">{count > 99 ? "99+" : count}</span>}</Link>;
+  return <Link href="/panier" className="icon-button cart-link" aria-haspopup="dialog" aria-label={count ? (t("Panier") + ", " + count + " " + t(count === 1 ? "pièce" : "pièces")) : t("Panier")} onClick={event => { if (!event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) { event.preventDefault(); onClick(); } }}><Icon name="bag"/>{count !== null && count > 0 && <span className="cart-count" aria-hidden="true">{count > 99 ? "99+" : count}</span>}</Link>;
 }
