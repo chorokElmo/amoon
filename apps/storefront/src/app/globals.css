@@ -209,6 +209,15 @@ h2 { font-family: var(--font-serif); font-weight: 400; font-size: clamp(30px, 3v
 .catalog-filter-form legend { padding: 0; margin-bottom: 15px; font-size: 12px; }
 .filter-choices { display: grid; gap: 11px; max-height: 240px; overflow-y: auto; padding: 2px 4px; margin-inline: -4px; }
 .filter-choices label, .filter-stock { display: flex; align-items: center; gap: 10px; font-size: 12px; line-height: 1.6; cursor: pointer; }
+.filter-category-tree, .filter-category-tree ul { list-style: none; }
+.filter-category-tree { margin-block: 0; }
+.filter-category-row { display: flex; align-items: center; gap: 8px; min-height: 36px; }
+.filter-category-row label { flex: 1; min-width: 0; }
+.filter-category-toggle { flex: 0 0 44px; min-height: 44px; border: 0; border-radius: var(--radius); background: transparent; color: var(--color-taupe); font-size: 20px; }
+.filter-category-toggle:hover { background: var(--ivory); color: var(--color-ink); }
+.filter-category-toggle:focus-visible { outline: 2px solid var(--color-ink); outline-offset: -2px; }
+.filter-category-tree ul { margin-block: 4px 8px; margin-inline: 8px 0; padding-inline-start: 16px; border-inline-start: 1px solid var(--line); }
+.filter-category-tree ul[hidden] { display: none; }
 .catalog-filter-form input[type='checkbox'] { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--color-ink); margin: 0; }
 .filter-price { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .filter-price label { display: block; font-size: 10px; margin-bottom: 8px; color: var(--color-taupe); }

@@ -16,7 +16,7 @@ for (const name of ["product-localization", "catalog-model", "medusa-catalog", "
   writeFileSync(join(scratch, name + ".js"), ts.transpileModule(code, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText);
 }
 const require = createRequire(import.meta.url);
-const { parseFilters, normalizeProduct, selectCatalog, catalogQuery, groupByHandle, visibleCategories } = require(join(scratch, "catalog-model.js"));
+const { parseFilters, normalizeProduct, selectCatalog, catalogQuery, groupByHandle, visibleCategories, categoryTree } = require(join(scratch, "catalog-model.js"));
 const { readMedusaCatalog } = require(join(scratch, "medusa-catalog.js"));
 const { mediaTarget } = require(join(scratch, "catalog-media.js"));
 const { selectedVariant, relatedProducts, variantLabel, variantForOptions } = require(join(scratch, "product-model.js"));
@@ -78,6 +78,22 @@ function rawProduct(id, price = 399, extra = {}) {
 const group = (id, extra = {}) => ({ id, handle: id, name: id === "robes" ? "Robes" : id, description: "", parentId: null, ...extra });
 const data = (products, categories = [group("robes")], collections = []) => ({ products: products.map(normalizeProduct), categories, collections });
 const select = (products, filters = {}, scope) => selectCatalog(data(products), parseFilters(filters), scope);
+test("category menus keep parents, subcategories and grandchildren together", () => {
+  const tree = categoryTree([group("scarves", { parentId: "women" }), group("clothing"), group("women", { parentId: "clothing" }), group("girls", { parentId: "clothing" }), group("girls-scarves", { name: "scarves", parentId: "girls" })]);
+  assert.deepEqual(tree.map(node => node.id), ["clothing"]);
+  assert.deepEqual(tree[0].children.map(node => node.id), ["women", "girls"]);
+  assert.equal(tree[0].children[0].children[0].id, "scarves");
+  assert.equal(tree[0].children[1].children[0].id, "girls-scarves");
+});
+test("category menus retain children of duplicate parents and safely expose orphaned or cyclic categories", () => {
+  const tree = categoryTree([group("clothing"), group("alias", { name: "clothing" }), group("women", { parentId: "alias" }), group("orphan", { parentId: "missing" }), group("a", { parentId: "b" }), group("b", { parentId: "a" })]);
+  assert.deepEqual(tree[0].aliasIds, ["clothing", "alias"]);
+  assert.equal(tree[0].children[0].id, "women");
+  assert.equal(tree[1].id, "orphan");
+  assert.equal(tree[2].id, "a");
+  assert.equal(tree[2].children[0].id, "b");
+  assert.deepEqual(tree[2].children[0].children, []);
+});
 
 test("product galleries retain actual image order and remove duplicate or empty images", () => {
   const product = normalizeProduct(rawProduct("photos", 399, { thumbnail: "https://media.example/front.jpg", images: [{ url: "https://media.example/front.jpg" }, { url: "https://media.example/back.jpg" }, { url: "" }] }));

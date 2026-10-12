@@ -78,6 +78,23 @@ export function visibleCategories(categories: CatalogGroup[]) {
   const names = new Set<string>();
   return categories.filter(group => { const name = fold(group.name); if (!name || names.has(name)) return false; names.add(name); return true; });
 }
+export type CategoryNode = CatalogGroup & { aliasIds: string[]; children: CategoryNode[] };
+export function categoryTree(categories: CatalogGroup[]): CategoryNode[] {
+  const knownIds = new Set(categories.map(group => group.id));
+  const visited = new Set<string>();
+  function branches(groups: CatalogGroup[]): CategoryNode[] {
+    return visibleCategories(groups.filter(group => !visited.has(group.id))).map(group => {
+      const aliasIds = groups.filter(alias => fold(alias.name) === fold(group.name)).map(alias => alias.id);
+      for (const id of aliasIds) visited.add(id);
+      const children = categories.filter(child => child.parentId && aliasIds.includes(child.parentId) && !visited.has(child.id));
+      return { ...group, aliasIds, children: branches(children) };
+    });
+  }
+  const roots = branches(categories.filter(group => !group.parentId || !knownIds.has(group.parentId)));
+  // Malformed cycles must not hide categories or recurse indefinitely.
+  for (const group of categories) if (!visited.has(group.id)) roots.push(...branches([group]));
+  return roots;
+}
 export function descendantIds(categories: CatalogGroup[], id: string): Set<string> {
   const name = categories.find(group => group.id === id)?.name;
   const result = new Set([id, ...categories.filter(group => name && fold(group.name) === fold(name)).map(group => group.id)]);
