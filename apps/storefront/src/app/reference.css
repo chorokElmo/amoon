@@ -463,6 +463,11 @@ input:not([type=checkbox]):not([type=radio]):focus,select:focus,textarea:focus {
 .pdp-variants legend span { color:var(--color-taupe); }
 .pdp-variants button[aria-pressed=true] { background:var(--wine); border-color:var(--wine); color:var(--ivory); }
 .pdp-variants small { display:block; font-size:10px; margin-top:4px; }
+.pdp-variants .pdp-option { display:grid; grid-template-columns:auto; justify-items:center; align-content:center; gap:4px; }
+.pdp-option[data-unavailable] { border-style:dashed; }
+.pdp-option[data-unavailable] > span:not(.pdp-color-swatch) { text-decoration:line-through; text-decoration-thickness:1px; }
+.pdp-color-swatch { width:22px; height:22px; border-radius:50%; border:1px solid rgba(33,29,26,.25); box-shadow:0 0 0 2px var(--ivory); }
+.pdp-variants button:focus-visible { outline:2px solid var(--wine); outline-offset:3px; }
 .product-detail .product-guide-button { margin:4px 0 18px; display:inline-flex; align-items:center; gap:10px; min-height:44px; font-size:13px; }
 .product-detail .product-cart { gap:12px; margin:16px 0 14px; }
 .product-detail .product-cart > label { font-size:13px; }

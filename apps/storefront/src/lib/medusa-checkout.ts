@@ -5,6 +5,22 @@ import type { StoreSettings } from "./store-settings";
 export type ShippingChoice = { id: string; name: string; amount: number };
 export type Checkout = { cart: Cart; customer: Customer | null; options: ShippingChoice[]; selectedShipping: string | null; shipping: number; cod: boolean; review: string | null; completed: boolean };
 export type Receipt = { id: string; number: string; total: number; currency: "mad" };
+export function orderConfirmation(input: unknown) {
+  const order = record(input);
+  const optionalAmount = (value: unknown) => typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
+  const address = record(order.shipping_address);
+  const fulfillments = list(order.fulfillments).map(record).filter(item => !item.canceled_at);
+  const statuses: Record<string, string> = { fulfilled: "Préparation", partially_fulfilled: "Préparation", partially_shipped: "Expédition partielle", shipped: "En livraison", partially_delivered: "Livraison partielle", delivered: "Livrée" };
+  const payments: Record<string, string> = { not_paid: "Paiement en attente", awaiting: "Paiement en attente", authorized: "Paiement autorisé", captured: "Paiement reçu", refunded: "Paiement remboursé", partially_refunded: "Paiement partiellement remboursé" };
+  const cod = record(order.metadata).amoon_payment_method === "cash_on_delivery" || list(order.payment_collections).some(value => list(record(value).payment_sessions).some(session => record(record(session).data).payment_method === "cash_on_delivery"));
+  const progress = order.status === "canceled" ? "Commande annulée" : statuses[text(order.fulfillment_status)] || (fulfillments.length && fulfillments.every(item => item.delivered_at) ? "Livrée" : fulfillments.length && fulfillments.every(item => item.shipped_at || item.delivered_at) ? "En livraison" : fulfillments.length ? "Préparation" : "Commande enregistrée");
+  return { ...orderReceipt(input), progress, paymentStatus: payments[text(order.payment_status)] || null, payment: cod ? "Paiement à la livraison" : null,
+    subtotal: optionalAmount(order.item_subtotal), shipping: optionalAmount(order.shipping_total), discount: optionalAmount(order.discount_total), tax: optionalAmount(order.tax_total),
+    items: list(order.items).map(value => { const item = record(value); return { id: text(item.id), title: text(item.product_title) || text(item.title), variant: text(item.variant_title), options: Object.entries(record(item.variant_option_values)).filter(([name, value]) => typeof value === "string" && name.toLowerCase() !== "default option").map(([name, value]) => ({ name, value: text(value) })), thumbnail: text(item.thumbnail) || null, quantity: Number.isInteger(item.quantity) && Number(item.quantity) > 0 ? Number(item.quantity) : null, total: optionalAmount(item.total) }; }),
+    address: Object.keys(address).length ? { name: [text(address.first_name), text(address.last_name)].filter(Boolean).join(" "), phone: text(address.phone), city: text(address.city), lines: [text(address.address_1), text(address.address_2), text(address.postal_code), text(address.country_code).toUpperCase()].filter(Boolean).join(", ") } : null,
+    instructions: text(record(order.metadata).delivery_instructions),
+  };
+}
 const amount = (v: unknown) => { if (typeof v !== "number" || !Number.isFinite(v) || v < 0) throw new CheckoutError("Les montants sont indisponibles.", 503); return v; };
 export function orderReceipt(input: unknown): Receipt {
   const o = record(input); if (!/^order_[a-zA-Z0-9]+$/.test(text(o.id)) || o.currency_code !== "mad") throw new CheckoutError("La confirmation est indisponible.", 503);
@@ -69,7 +85,7 @@ export function medusaCheckout(config: CartConfig, secret: string, transport: ty
       if (!state.review || !validProof(token, reviewData(state), secret)) throw new CheckoutError("Le panier a changé. Vérifiez à nouveau votre commande.");
       return completedOrder(id);
     },
-    async receipt(id: string) { return orderReceipt((await service.request("/store/orders/" + encodeURIComponent(id))).order); },
+    async receipt(id: string) { return orderConfirmation((await service.request("/store/orders/" + encodeURIComponent(id) + "?fields=*items,*shipping_address,*fulfillments,*payment_collections.payment_sessions,+metadata,+payment_status,+fulfillment_status")).order); },
   };
   async function completedOrder(id: string) {
     const result = await service.request(base(id) + "/complete", "POST", {});

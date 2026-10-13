@@ -19,11 +19,26 @@ const require = createRequire(import.meta.url);
 const { parseFilters, normalizeProduct, selectCatalog, catalogQuery, groupByHandle, visibleCategories, categoryTree, productReadinessIssues } = require(join(scratch, "catalog-model.js"));
 const { readMedusaCatalog } = require(join(scratch, "medusa-catalog.js"));
 const { mediaTarget } = require(join(scratch, "catalog-media.js"));
-const { selectedVariant, relatedProducts, variantLabel, variantForOptions } = require(join(scratch, "product-model.js"));
+const { selectedVariant, relatedProducts, variantLabel, variantForOptions, optionAvailability, optionColor } = require(join(scratch, "product-model.js"));
 const { signCart, readCartCookie, CART_AGE } = require(join(scratch, "cart-cookie.js"));
 const { parseCartAction, normalizeCart, medusaCart } = require(join(scratch, "medusa-cart.js"));
 const { parseCustomer, proof, validProof } = require(join(scratch, "checkout-model.js"));
-const { medusaCheckout, orderReceipt } = require(join(scratch, "medusa-checkout.js"));
+const { medusaCheckout, orderReceipt, orderConfirmation } = require(join(scratch, "medusa-checkout.js"));
+
+test("confirmation projects actual order items, totals and delivery without leaking extra private fields or inventing fulfillment", () => {
+  const raw = { id: "order_real", display_id: 42, currency_code: "mad", total: 180, item_subtotal: 150, shipping_total: 30, email: "private@example.test", metadata: { amoon_payment_method: "cash_on_delivery", private_note: "hidden" }, shipping_address: { first_name: "Test", last_name: "Customer", phone: "0600000000", city: "Test city", address_1: "Test address", country_code: "ma" }, items: [{ id: "item_real", product_title: "Real product", variant_title: "M / Beige", quantity: 2, total: 150 }], fulfillments: [] };
+  const receipt = orderConfirmation(raw);
+  assert.equal(receipt.number, "42"); assert.equal(receipt.total, 180); assert.equal(receipt.shipping, 30);
+  assert.equal(receipt.items[0].variant, "M / Beige"); assert.equal(receipt.items[0].quantity, 2);
+  assert.equal(receipt.address.phone, "0600000000"); assert.equal(receipt.payment, "Paiement à la livraison");
+  assert.equal(receipt.progress, "Commande enregistrée"); assert.equal("email" in receipt, false); assert.equal(JSON.stringify(receipt).includes("private_note"), false);
+  assert.equal(orderConfirmation({ ...raw, metadata: null }).payment, null);
+  assert.equal(orderConfirmation({ ...raw, metadata: null, payment_collections: [{ payment_sessions: [{ data: { payment_method: "cash_on_delivery" } }] }] }).payment, "Paiement à la livraison");
+  assert.equal(orderConfirmation({ ...raw, fulfillments: [{ shipped_at: "now" }, {}] }).progress, "Préparation");
+  assert.equal(orderConfirmation({ ...raw, fulfillments: [{ shipped_at: "now" }] }).progress, "En livraison");
+  assert.equal(orderConfirmation({ ...raw, fulfillments: [{ delivered_at: "now" }] }).progress, "Livrée");
+  assert.equal(orderConfirmation({ ...raw, status: "canceled" }).progress, "Commande annulée");
+});
 const { siteOrigin, productSchema, serializeJsonLd, catalogMetadata, breadcrumbSchema, brandSchema } = require(join(scratch, "seo.js"));
 const { setAnalyticsConsent, trackPageView } = require(join(scratch, "analytics.js"));
 test("restored localhost media resolves to internal storage without changing product records", () => {
@@ -121,6 +136,24 @@ test("product galleries retain actual image order and remove duplicate or empty 
   const product = normalizeProduct(rawProduct("photos", 399, { thumbnail: "https://media.example/front.jpg", images: [{ url: "https://media.example/front.jpg" }, { url: "https://media.example/back.jpg" }, { url: "" }] }));
   assert.deepEqual(product.images, ["https://media.example/front.jpg", "https://media.example/back.jpg"]);
   assert.deepEqual(normalizeProduct(rawProduct("missing")).images, []);
+});
+test("option availability reflects the selected color/size and distinguishes sold-out, missing, unknown and backorder combinations", () => {
+  const product = normalizeProduct(rawProduct("options", 150, { variants: [variant("s-black", "S", "Noir", 150, 2), variant("m-black", "M", "Noir", 150, 0), variant("m-beige", "M", "Beige", 180, 0, { allow_backorder: true }), variant("l-black", "L", "Noir", 150, undefined, { inventory_quantity: undefined })] }));
+  assert.equal(optionAvailability(product, {}, "Taille", "M"), "Sur commande");
+  assert.equal(optionAvailability(product, { Couleur: "Noir" }, "Taille", "S"), "En stock");
+  assert.equal(optionAvailability(product, { Couleur: "Noir" }, "Taille", "M"), "Épuisé");
+  assert.equal(optionAvailability(product, { Couleur: "Beige" }, "Taille", "S"), "Combinaison indisponible");
+  assert.equal(optionAvailability(product, { Couleur: "Noir" }, "Taille", "L"), "À confirmer");
+  assert.equal(variantForOptions(product, { Taille: "M", Couleur: "Beige" }).id, "m-beige");
+  assert.equal(variantForOptions(product, { Taille: "M", Couleur: "Beige" }).price, 180);
+});
+test("color swatches require a recognized color option and reliable named or hex values", () => {
+  assert.equal(optionColor("Couleur", "Noir"), "#24201f");
+  assert.equal(optionColor("اللون", "عنابي"), "#650f2c");
+  assert.equal(optionColor("Color", "#aBc123"), "#aBc123");
+  assert.equal(optionColor("Taille", "Noir"), null);
+  assert.equal(optionColor("Couleur", "Multicolore"), null);
+  assert.equal(optionColor("Couleur", "url(https://example.com)"), null);
 });
 test("variant selection accepts only IDs belonging to the current product", () => {
   const product = normalizeProduct(rawProduct("choices", 399, { variants: [variant("s-noir", "S", "Noir", 399, 1), variant("m-beige", "M", "Beige", 499, 0)] }));
