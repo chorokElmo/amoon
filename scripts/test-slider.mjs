@@ -38,7 +38,7 @@ test("duplicate slide IDs, excessive slides and invalid revisions are rejected",
 test("unsafe button URLs and mismatched secondary buttons are rejected", () => {
   for (const link of ["javascript:alert(1)", "data:text/html,hello", "//evil.example", "/\\evil.example", "https://user:pass@evil.example", "http://evil.example", " /boutique", "/\nevil.example"]) assert.equal(safeSlideLink(link), false, link);
   for (const link of ["/boutique", "/boutique?q=robes", "https://example.com/collection"]) assert.equal(safeSlideLink(link), true);
-  assert.equal(SaveSliderSchema.safeParse({ revision: 0, slides: [{ ...slide, secondary_link: "" }] }).success, false);
+  assert.equal(SaveSliderSchema.safeParse({ revision: 0, slides: [{ ...slide, secondary_label: "Voir les nouveautés", secondary_link: "" }] }).success, false);
 });
 test("image payload validation rejects arbitrary content and unsupported formats", () => {
   for (const body of [{ mime_type: "image/svg+xml", content: "PHN2Zz4=" }, { mime_type: "image/png", content: "not-base64!" }]) assert.equal(UploadSliderImageSchema.safeParse(body).success, false);

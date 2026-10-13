@@ -16,7 +16,7 @@ for (const name of ["product-localization", "catalog-model", "medusa-catalog", "
   writeFileSync(join(scratch, name + ".js"), ts.transpileModule(code, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText);
 }
 const require = createRequire(import.meta.url);
-const { parseFilters, normalizeProduct, selectCatalog, catalogQuery, groupByHandle, visibleCategories, categoryTree } = require(join(scratch, "catalog-model.js"));
+const { parseFilters, normalizeProduct, selectCatalog, catalogQuery, groupByHandle, visibleCategories, categoryTree, productReadinessIssues } = require(join(scratch, "catalog-model.js"));
 const { readMedusaCatalog } = require(join(scratch, "medusa-catalog.js"));
 const { mediaTarget } = require(join(scratch, "catalog-media.js"));
 const { selectedVariant, relatedProducts, variantLabel, variantForOptions } = require(join(scratch, "product-model.js"));
@@ -78,6 +78,28 @@ function rawProduct(id, price = 399, extra = {}) {
 const group = (id, extra = {}) => ({ id, handle: id, name: id === "robes" ? "Robes" : id, description: "", parentId: null, ...extra });
 const data = (products, categories = [group("robes")], collections = []) => ({ products: products.map(normalizeProduct), categories, collections });
 const select = (products, filters = {}, scope) => selectCatalog(data(products), parseFilters(filters), scope);
+
+test("readiness hides incomplete or explicitly hidden merchant data without treating sold-out or single-size products as test data", () => {
+  const ready = rawProduct("ready", 150, { thumbnail: "/images/merchant-photo.jpg" });
+  assert.deepEqual(productReadinessIssues(normalizeProduct(ready)), []);
+  for (const extra of [{ description: "" }, { description: ready.title }, { thumbnail: null }, { variants: [] }, { metadata: { storefront_hidden: true } }, { metadata: { is_test: true } }, { metadata: { is_demo: true } }]) assert.ok(productReadinessIssues(normalizeProduct({ ...ready, ...extra })).length);
+  assert.deepEqual(productReadinessIssues(normalizeProduct({ ...ready, variants: [variant("sold", "Unique", "Noir", 150, 0)] })), []);
+  assert.ok(productReadinessIssues(normalizeProduct({ ...ready, variants: [variant("free", "M", "Noir", 0)] })).includes("mad-price"));
+  assert.ok(productReadinessIssues(normalizeProduct({ ...ready, variants: [variant("priced", "M", "Noir", 150), variant("unpriced", "L", "Noir", null)] })).includes("mad-price"));
+  assert.equal(ready.thumbnail, "/images/merchant-photo.jpg");
+});
+
+test("hidden and incomplete products cannot bypass the catalogue through direct cart API calls", async () => {
+  for (const extra of [{ description: "" }, { thumbnail: null }, { metadata: { is_test: true } }, { thumbnail: "https://unapproved.example/photo.jpg" }]) {
+    let mutations = 0;
+    const service = medusaCart(cartConfig, async (url) => {
+      if (String(url).includes("/products")) return Response.json({ products: [{ ...eligibleProduct(), ...extra }] });
+      mutations++; return Response.json({ cart: rawCart() });
+    });
+    await assert.rejects(service.mutate(normalizeCart(rawCart(), cartConfig), { action: "add", productId: "prod_piece", variantId: "variant_piece", quantity: 1 }), error => error.code === "product");
+    assert.equal(mutations, 0);
+  }
+});
 test("category menus keep parents, subcategories and grandchildren together", () => {
   const tree = categoryTree([group("scarves", { parentId: "women" }), group("clothing"), group("women", { parentId: "clothing" }), group("girls", { parentId: "clothing" }), group("girls-scarves", { name: "scarves", parentId: "girls" })]);
   assert.deepEqual(tree.map(node => node.id), ["clothing"]);
@@ -291,7 +313,7 @@ test("a connected store with no products is a genuine empty catalog", async () =
 const cartConfig = { url: "http://backend.local", publishableKey: "pk_test", regionId: "reg_ma", salesChannelId: "sc_store" };
 const rawCart = (items = [], extra = {}) => ({ id: "cart_real", currency_code: "mad", region_id: "reg_ma", sales_channel_id: "sc_store", completed_at: null, item_subtotal: 150 * items.reduce((n,i) => n+i.quantity,0), total: 150 * items.reduce((n,i) => n+i.quantity,0), tax_total: 0, discount_total: 0, items, ...extra });
 const rawLine = (quantity = 1) => ({ id: "cali_item", product_id: "prod_piece", variant_id: "variant_piece", product_handle: "piece", product_title: "Pièce", variant_title: "M", quantity, unit_price: 150, total: 150 * quantity });
-const eligibleProduct = () => rawProduct("prod_piece", 150, { variants: [variant("variant_piece", "M", "Noir", 150, 10)] });
+const eligibleProduct = () => rawProduct("prod_piece", 150, { thumbnail: "/images/merchant-photo.jpg", variants: [variant("variant_piece", "M", "Noir", 150, 10)] });
 
 test("cart cookies reject tampering, expiry, another signing key and malformed values", () => {
   const secret = "x".repeat(64); const now = 1000000000000;
@@ -330,7 +352,7 @@ test("cart adapter uses fresh product prices and the backend mutation totals", a
   assert.ok(calls[0].url.includes("region_id=reg_ma")); assert.ok(calls[0].url.includes("sales_channel_id=sc_store")); assert.equal(new URL(calls[1].url).searchParams.get("fields"), "+items.total");
 });
 test("unpriced, unavailable or foreign variants never trigger a cart mutation", async () => {
-  for(const product of [rawProduct("prod_piece",150,{variants:[variant("variant_piece","M","Noir",null,10)]}),rawProduct("prod_piece",150,{variants:[variant("variant_piece","M","Noir",150,0)]}),rawProduct("prod_piece",150,{variants:[variant("variant_other","M","Noir",150,10)]})]) {
+  for(const product of [rawProduct("prod_piece",150,{thumbnail:"/images/merchant-photo.jpg",variants:[variant("variant_piece","M","Noir",null,10)]}),rawProduct("prod_piece",150,{thumbnail:"/images/merchant-photo.jpg",variants:[variant("variant_piece","M","Noir",150,0)]}),rawProduct("prod_piece",150,{variants:[variant("variant_other","M","Noir",150,10)]})]) {
     const calls=[]; const service=medusaCart(cartConfig,async (url) => {calls.push(String(url));return Response.json({products:[product]});});
     await assert.rejects(service.mutate(normalizeCart(rawCart(),cartConfig),{action:"add",productId:"prod_piece",variantId:"variant_piece",quantity:1}));
     assert.equal(calls.length,1);

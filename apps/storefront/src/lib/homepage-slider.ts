@@ -45,7 +45,7 @@ export function fallbackHomepageSlides(image: string, alt: string): HomepageSlid
   return (["center", "right center", "left bottom"] as const).map((position, index) => ({
     id: `fallback-${index}`, title: "Des pièces qui vous\nressemblent.",
     description: "Confortables, féminines et faciles à porter.\nDécouvrez la nouvelle collection Amoon.", eyebrow: "NOUVELLE COLLECTION · AMOON",
-    button_label: "DÉCOUVRIR LA COLLECTION", button_link: "/boutique", secondary_label: "Voir les nouveautés", secondary_link: "/nouveautes",
-    image_url: image, image_alt: alt, position, zoom: [1, 1.2, 1.35][index],
+    button_label: "DÉCOUVRIR LA COLLECTION", button_link: "/collections", secondary_label: "", secondary_link: "",
+    image_url: image, image_alt: alt, position, zoom: image === "/images/hero-amoon-fashion-reference.png" ? 1 : [1, 1.2, 1.35][index],
   }));
 }

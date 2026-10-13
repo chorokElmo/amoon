@@ -1,4 +1,5 @@
-import { record, text, list, normalizeProduct } from "./catalog-model";
+import { record, text, list, normalizeProduct, productReadinessIssues } from "./catalog-model";
+import { mediaTarget } from "./catalog-media";
 export type CartItem = { id: string; productId: string; variantId: string; handle: string; title: string; variant: string; quantity: number; unitPrice: number; total: number; thumbnail: string | null };
 export type Cart = { id: string; items: CartItem[]; subtotal: number; total: number; tax: number; discount: number };
 export class CartError extends Error { constructor(public code: "configuration" | "unavailable" | "invalid" | "product" | "missing", public status = 503) { super(code); } }
@@ -39,10 +40,11 @@ export function medusaCart(config: CartConfig, transport: typeof fetch = fetch) 
     } catch (error) { if (error instanceof CartError) throw error; throw new CartError("unavailable"); }
   }
   async function eligible(productId: string, variantId: string) {
-    const params = new URLSearchParams({ id: productId, sales_channel_id: config.salesChannelId, region_id: config.regionId, country_code: "ma", fields: "*variants.calculated_price,+variants.inventory_quantity", limit: "1" });
+    const params = new URLSearchParams({ id: productId, sales_channel_id: config.salesChannelId, region_id: config.regionId, country_code: "ma", fields: "*variants.calculated_price,+variants.inventory_quantity,+metadata,*images", limit: "1" });
     const products = list((await request("/store/products?" + params)).products);
     if (products.length !== 1 || record(products[0]).id !== productId) throw new CartError("product", 409);
     const product = normalizeProduct(products[0]);
+    if (productReadinessIssues(product).length || !product.images.some(image => image.startsWith("/images/") && !image.includes("..") && !image.includes("\\") || mediaTarget(image, config.url, process.env.PRODUCT_IMAGE_ORIGINS || "", process.env.LEGACY_MEDIA_ORIGINS || ""))) throw new CartError("product", 409);
     const variant = product.variants.find(v => v.id === variantId);
     if (!variant || variant.price === null || !["in_stock", "backorder"].includes(variant.stock)) throw new CartError("product", 409);
   }

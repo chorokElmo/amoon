@@ -11,6 +11,6 @@ export async function HomepageHero({ imageSrc = process.env.AMOON_HERO_IMAGE, im
   const config = await readHomepageSlider({ url: process.env.MEDUSA_INTERNAL_URL || "", publishableKey: process.env.MEDUSA_PUBLISHABLE_KEY });
   const slides = config?.configured
     ? config.slides.flatMap(slide => { const src = catalogImageSource(slide.image_url); return src ? [{ ...slide, image_url: src }] : []; })
-    : fallbackHomepageSlides(approvedImage || "/images/hero-amoon-rack.png", imageAlt || "Collection Amoon : vêtements bordeaux, ivoire et blush sur un portant");
+    : fallbackHomepageSlides(approvedImage || "/images/hero-amoon-fashion-reference.png", imageAlt || "Collection Amoon : deux femmes en tenues bordeaux et ivoire");
   return slides.length ? <HeroSlider slides={slides} cod={settings.payment.cod} customExchange={settings.policies.exchange !== defaultStoreSettings().policies.exchange}/> : null;
 }

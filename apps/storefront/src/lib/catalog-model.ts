@@ -3,7 +3,7 @@ export type SearchParams = Record<string, string | string[] | undefined>;
 export type Stock = "in_stock" | "backorder" | "out_of_stock" | "unknown";
 export type CatalogVariant = { maxQuantity?: number | null; id: string; title: string; options: { name: string; value: string }[]; sku: string | null; sizes: string[]; colors: string[]; price: number | null; originalPrice: number | null; stock: Stock };
 export type ProductTranslation = { title?: string; description?: string; composition?: string; size_guide?: string; variants?: Record<string, string> };
-export type CatalogProduct = { translations?: { ar?: ProductTranslation }; searchText?: string; imageFit?: "contain" | "cover"; id: string; handle: string; title: string; description: string; composition?: string | null; thumbnail: string | null; images: string[]; sizeGuide: string | null; createdAt: number; popularity: number | null; categoryIds: string[]; collectionId: string | null; variants: CatalogVariant[] };
+export type CatalogProduct = { storefrontHidden?: boolean; translations?: { ar?: ProductTranslation }; searchText?: string; imageFit?: "contain" | "cover"; id: string; handle: string; title: string; description: string; composition?: string | null; thumbnail: string | null; images: string[]; sizeGuide: string | null; createdAt: number; popularity: number | null; categoryIds: string[]; collectionId: string | null; variants: CatalogVariant[] };
 export type CatalogGroup = { id: string; handle: string; name: string; description: string; parentId: string | null };
 export type CatalogData = { products: CatalogProduct[]; categories: CatalogGroup[]; collections: CatalogGroup[] };
 export const sortChoices = { newest: "Nouveautés", price_asc: "Prix croissant", price_desc: "Prix décroissant", popular: "Populaires" } as const;
@@ -45,7 +45,19 @@ export function normalizeProduct(value: unknown): CatalogProduct {
   });
   const rank = amount(record(product.metadata).popularity_rank);
   const images = [...new Set([text(product.thumbnail), ...list(product.images).map(image => text(record(image).url))].filter(Boolean))];
-  return { translations: { ar: productArabicTranslation(product.metadata) }, imageFit: record(product.metadata).image_fit === "cover" ? "cover" : "contain", id: text(product.id), handle: text(product.handle), title: text(product.title), description: text(product.description), composition: text(record(product.metadata).composition).trim().slice(0, 10000) || null, thumbnail: images[0] || null, images, sizeGuide: text(record(product.metadata).size_guide).trim().slice(0, 10000) || null, createdAt: Date.parse(text(product.created_at)) || 0, popularity: rank, categoryIds: list(product.categories).map(item => text(record(item).id)).filter(Boolean), collectionId: text(product.collection_id) || text(record(product.collection).id) || null, variants };
+  return { storefrontHidden: record(product.metadata).storefront_hidden === true || record(product.metadata).is_test === true || record(product.metadata).is_demo === true, translations: { ar: productArabicTranslation(product.metadata) }, imageFit: record(product.metadata).image_fit === "cover" ? "cover" : "contain", id: text(product.id), handle: text(product.handle), title: text(product.title), description: text(product.description), composition: text(record(product.metadata).composition).trim().slice(0, 10000) || null, thumbnail: images[0] || null, images, sizeGuide: text(record(product.metadata).size_guide).trim().slice(0, 10000) || null, createdAt: Date.parse(text(product.created_at)) || 0, popularity: rank, categoryIds: list(product.categories).map(item => text(record(item).id)).filter(Boolean), collectionId: text(product.collection_id) || text(record(product.collection).id) || null, variants };
+}
+
+// Readiness is reversible: merchant records remain untouched in Medusa.
+// Sold-out and single-option products remain valid catalogue entries.
+export function productReadinessIssues(product: CatalogProduct): string[] {
+  const issues: string[] = [];
+  if (product.storefrontHidden) issues.push("merchant-hidden");
+  if (!product.title.trim() || !product.handle.trim()) issues.push("identity");
+  if (!product.description.trim() || fold(product.description) === fold(product.title)) issues.push("description");
+  if (!product.images.some(image => image.trim() && !image.startsWith("/images/demo/"))) issues.push("image");
+  if (!product.variants.length || product.variants.some(variant => !variant.id || variant.price === null || variant.price <= 0)) issues.push("mad-price");
+  return issues;
 }
 
 export function parseFilters(params: SearchParams, defaultSort: Filters["sort"] = "newest"): Filters {
