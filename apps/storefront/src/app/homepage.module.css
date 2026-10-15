@@ -1,0 +1,127 @@
+.page { background:var(--theme-page-background,#fcf9f4); }
+.page :global(.home-section) { padding-block:46px 18px; }
+.page :global(.section-heading) { align-items:end; margin-block-end:22px; gap:20px; }
+.page :global(.section-heading h2) { font-family:var(--font-serif); font-size:clamp(30px,3.1vw,46px); line-height:1.15; font-weight:400; margin:8px 0 0; white-space:pre-line; }
+.page :global(.eyebrow) { font-size:10px; letter-spacing:.16em; color:var(--wine); }
+.page :global(.text-link) { font-size:12px; color:var(--wine); gap:10px; padding-block:8px; }
+.page :global(.category-editorial) { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; padding:0; overflow:visible; }
+.page :global(.category-editorial .shop-story) { height:auto; min-height:0; aspect-ratio:3 / 4; border-radius:2px; }
+.page :global(.category-editorial .shop-story > div) { inset-inline:20px; inset-block-end:24px; }
+.page :global(.category-editorial .shop-story h3) { font-family:var(--font-serif); font-size:clamp(25px,2.4vw,36px); font-weight:400; line-height:1.15; margin:0 0 14px; }
+.page :global(.category-editorial .shop-story span) { font-size:11px; }
+.page :global(.arrivals-grid) { max-width:none; margin-inline:0; grid-template-columns:repeat(4,minmax(0,1fr)); gap:28px 18px; }
+.page :global(.catalog-card) { min-width:0; }
+.page :global(.catalog-card h2) { font-size:14px; line-height:1.5; }
+.page :global(.catalog-price) { font-size:14px; color:var(--wine); }
+.page :global(.color-options) { gap:6px 12px; }
+.page :global(.color-options > span) { font-size:10px; }
+.page :global(.catalog-card-action .button) { min-height:44px; width:100%; padding-inline:12px; font-size:10px; }
+.page :global(.trust-strip) { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; padding-block:26px; border-block:0; }
+.page :global(.trust-strip > div) { justify-content:center; padding-inline:18px; border-inline-end:1px solid var(--line); }
+.page :global(.trust-strip > div:last-child) { border:0; }
+.page :global(.trust-strip svg) { color:var(--wine); width:26px; height:26px; }
+.page :global(.trust-strip h3) { font-size:12px; font-family:var(--font-sans); font-weight:500; }
+.page :global(.trust-strip p) { font-size:11px; }
+.page :global(.season-campaign) { max-width:1280px; margin:42px auto 0; min-height:0; }
+.page :global(.season-photo) { min-height:400px; }
+.page :global(.season-photo img) { object-fit:contain; }
+.page :global(.season-copy) { padding:40px clamp(24px,4vw,60px); }
+.page :global(.season-copy h2) { font-size:clamp(30px,3vw,44px); white-space:pre-line; }
+.page :global(.brand-story) { display:flex; padding-block:0; margin-block:48px 0; gap:0; background:var(--color-sand,#f4ede5); }
+.page :global(.story-photo) { position:relative; width:40%; min-height:340px; height:auto; border-radius:0; }
+.page :global(.story-photo img) { object-fit:contain; }
+.page :global(.story-copy) { flex:1; min-width:0; padding:40px clamp(24px,5vw,72px); align-self:center; }
+.page :global(.story-copy h2) { font-size:clamp(30px,3vw,46px); line-height:1.15; font-weight:400; white-space:pre-line; }
+.page :global(.story-copy p:not(.eyebrow)) { font-size:13px; line-height:1.85; max-width:480px; }
+.page :global(.social-journal) { display:block; padding-block:44px 26px; }
+.page :global(.social-journal .section-heading > div) { display:block; }
+.page :global(.social-mosaic) { grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin-block:20px 0; overflow:visible; }
+.page :global(.social-mosaic a) { aspect-ratio:1; border-radius:0; }
+.page :global(.social-mosaic img) { object-fit:cover; }
+.page :global(.newsletter--wine) { color:var(--color-ink); background:var(--color-sand,#f4ede5); padding-block:22px; margin-block:20px 0; }
+.page :global(.newsletter-inner) { grid-template-columns:1fr 1.1fr; gap:30px; }
+.page :global(.newsletter-inner h2) { font-size:25px; border:0; padding:0; line-height:1.25; }
+.page :global(.newsletter-inner p) { font-size:12px; margin-block:8px 0; }
+.page :global(.newsletter-fields input) { background:var(--ivory); color:var(--color-ink); border-color:var(--line); min-width:0; }
+.page :global(.newsletter-fields .button) { background:var(--wine); color:var(--ivory); }
+.page :global(.home-catalog-status) { border:1px solid var(--line); background:var(--color-sand); padding:24px; font-size:13px; }
+.page :global(a:focus-visible),.page :global(button:focus-visible) { outline:2px solid var(--wine); outline-offset:4px; }
+@media(max-width:1000px) { .page :global(.category-editorial),.page :global(.arrivals-grid) { grid-template-columns:repeat(2,minmax(0,1fr)); } .page :global(.social-mosaic) { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:640px) {
+ .page :global(.home-section) { padding-block:30px 8px; }
+ .page :global(.section-heading) { align-items:start; flex-direction:column; gap:10px; }
+ .page :global(.section-heading h2) { font-size:32px; }
+ .page :global(.category-editorial) { gap:12px; }
+ .page :global(.category-editorial .shop-story) { flex:none; aspect-ratio:3 / 4; }
+ .page :global(.category-editorial .shop-story > div) { inset-inline:12px; inset-block-end:16px; }
+ .page :global(.category-editorial .shop-story h3) { font-size:25px; }
+ .page :global(.category-editorial .shop-story span) { gap:6px; font-size:10px; }
+ .page :global(.arrivals-grid) { gap:24px 12px; }
+ .page :global(.catalog-card h2) { font-size:12px; }
+ .page :global(.catalog-card-heading) { display:block; }
+ .page :global(.catalog-price) { margin-block-start:5px; }
+ .page :global(.trust-strip) { padding-block:22px; }
+ .page :global(.trust-strip > div) { flex-direction:column; text-align:center; padding-inline:8px; gap:8px; }
+ .page :global(.trust-strip h3) { font-size:10px; }
+ .page :global(.trust-strip p) { font-size:10px; }
+ .page :global(.brand-story) { flex-direction:column; margin-block-start:30px; }
+ .page :global(.story-photo) { width:100%; min-height:0; aspect-ratio:4 / 3; }
+ .page :global(.story-copy) { padding:28px 20px; }
+ .page :global(.season-campaign) { margin-block-start:30px; }
+ .page :global(.season-photo) { min-height:0; aspect-ratio:4 / 3; }
+ .page :global(.social-journal) { padding-block:30px 15px; }
+ .page :global(.social-mosaic) { grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; padding:0; }
+ .page :global(.newsletter-inner) { grid-template-columns:1fr; gap:20px; }
+ .page :global(.newsletter-inner h2) { font-size:27px; }
+}
+@media(prefers-reduced-motion:reduce) { .page :global(*) { animation:none !important; transition:none !important; } }
+
+/* Homepage-only editorial treatment; shared commerce cards keep their behavior. */
+.page :global(.home-section) { padding-block:82px 12px; }
+.page :global(.section-heading) { margin-block-end:32px; }
+.page :global(.section-heading h2) { font-size:clamp(34px,3.4vw,52px); letter-spacing:-.025em; }
+.page :global(.category-editorial) { gap:22px; }
+.page :global(.category-editorial .shop-story) { border-radius:0; aspect-ratio:3 / 4.4; }
+.page :global(.category-editorial .shop-story::after) { background:linear-gradient(0deg,rgb(30 17 16 / .7),transparent 60%); }
+.page :global(.category-editorial .shop-story > div) { inset-inline:24px; inset-block-end:28px; }
+.page :global(.category-editorial .shop-story span) { border-radius:0; min-height:44px; padding:0; background:transparent; color:#fffaf1; border-bottom:1px solid rgb(255 250 241 / .6); }
+.page :global(.catalog-card) { background:transparent; border:0; box-shadow:none; border-radius:0; padding:0; }
+.page :global(.catalog-photo) { border-radius:0; }
+.page :global(.arrivals-grid) { gap:38px 24px; }
+.page :global(.catalog-card-action .button) { background:transparent; border-color:var(--line); border-radius:0; }
+.page :global(.trust-strip) { display:flex; flex-wrap:wrap; justify-content:center; gap:0; padding-block:30px; border-bottom:1px solid var(--line); }
+.page :global(.trust-strip > a) { display:flex; flex:1 1 260px; align-items:center; justify-content:center; gap:16px; padding:12px 28px; border-inline-end:1px solid var(--line); text-decoration:none; }
+.page :global(.trust-strip > a:last-child) { border-inline-end:0; }
+.page :global(.trust-strip > a:hover h3) { text-decoration:underline; text-underline-offset:4px; }
+.editorial { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); margin-block:88px 0; background:#efe7dc; }
+.editorialPhoto { position:relative; min-height:620px; }
+.editorialPhoto img { object-fit:cover; object-position:center 38%; }
+.editorialCopy { display:flex; flex-direction:column; align-items:flex-start; justify-content:center; padding:70px clamp(28px,7vw,112px); min-width:0; }
+.editorialCopy h2 { font-family:var(--font-serif); font-size:clamp(36px,4.5vw,66px); font-weight:400; line-height:1.08; letter-spacing:-.025em; margin:22px 0; white-space:pre-line; }
+.editorialCopy > p:not(:global(.eyebrow)) { color:#66574e; font-size:14px; line-height:1.9; max-width:400px; white-space:pre-line; margin:0 0 32px; }
+.editorialCopy :global(.button) { border-radius:0; font-size:12px; min-height:50px; }
+.page :global(.brand-story) { background:transparent; margin-block:76px 0; padding-block:20px; }
+.page :global(.brand-story .story-photo) { display:none; }
+.page :global(.story-copy) { text-align:center; padding:24px; }
+.page :global(.story-copy p:not(.eyebrow)) { margin-inline:auto; }
+.page :global(.social-journal) { padding-block:64px 40px; }
+@media(max-width:1000px) { .editorialPhoto { min-height:540px; } .editorialCopy { padding:40px 32px; } }
+@media(max-width:640px) {
+ .page :global(.home-section) { padding-block:44px 8px; }
+ .page :global(.section-heading) { margin-block-end:24px; }
+ .page :global(.section-heading h2) { font-size:34px; }
+ .page :global(.category-editorial) { gap:18px 12px; }
+ .page :global(.category-editorial .shop-story) { aspect-ratio:3 / 4.8; }
+ .page :global(.category-editorial .shop-story > div) { inset-inline:12px; inset-block-end:16px; }
+ .page :global(.category-editorial .shop-story h3) { font-size:24px; overflow-wrap:anywhere; }
+ .page :global(.category-editorial .shop-story span) { font-size:10px; gap:8px; }
+ .page :global(.arrivals-grid) { gap:30px 12px; }
+ .page :global(.trust-strip) { padding-block:12px; }
+ .page :global(.trust-strip > a) { flex-basis:140px; padding:14px 10px; flex-direction:column; text-align:center; gap:8px; }
+ .editorial { grid-template-columns:minmax(0,1fr); margin-block-start:52px; }
+ .editorialPhoto { min-height:0; aspect-ratio:4 / 4.5; }
+ .editorialCopy { padding:38px 24px 44px; }
+ .editorialCopy h2 { font-size:42px; }
+ .page :global(.brand-story) { margin-block-start:32px; }
+ .page :global(.social-journal) { padding-block:36px 28px; }
+}

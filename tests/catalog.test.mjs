@@ -16,10 +16,10 @@ for (const name of ["product-localization", "catalog-model", "medusa-catalog", "
   writeFileSync(join(scratch, name + ".js"), ts.transpileModule(code, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText);
 }
 const require = createRequire(import.meta.url);
-const { parseFilters, normalizeProduct, selectCatalog, catalogQuery, groupByHandle, visibleCategories, categoryTree, productReadinessIssues } = require(join(scratch, "catalog-model.js"));
+const { parseFilters, normalizeProduct, selectCatalog, catalogQuery, groupByHandle, visibleCategories, categoryTree, productReadinessIssues, populatedCatalogGroups, homepageArrivals } = require(join(scratch, "catalog-model.js"));
 const { readMedusaCatalog } = require(join(scratch, "medusa-catalog.js"));
-const { mediaTarget } = require(join(scratch, "catalog-media.js"));
-const { selectedVariant, relatedProducts, variantLabel, variantForOptions, optionAvailability, optionColor } = require(join(scratch, "product-model.js"));
+const { mediaTarget, catalogImagePath } = require(join(scratch, "catalog-media.js"));
+const { selectedVariant, relatedProducts, variantLabel, variantForOptions, optionAvailability, optionColor, orderedOptionValues } = require(join(scratch, "product-model.js"));
 const { signCart, readCartCookie, CART_AGE } = require(join(scratch, "cart-cookie.js"));
 const { parseCartAction, normalizeCart, medusaCart } = require(join(scratch, "medusa-cart.js"));
 const { parseCustomer, proof, validProof } = require(join(scratch, "checkout-model.js"));
@@ -48,6 +48,20 @@ test("restored localhost media resolves to internal storage without changing pro
 });
 test("legacy media mapping cannot reach admin routes, other origins or credential URLs", () => {
   for (const url of ["http://localhost:9001/admin/users", "http://localhost:9001/static/../admin/users", "http://localhost:9002/static/photo.jpg", "http://user:pass@localhost:9001/static/photo.jpg"]) assert.equal(mediaTarget(url, "http://medusa:9000", "", "http://localhost:9001"), null);
+});
+
+test("collection covers can safely reuse resolved image URLs without placeholders or proxy bypasses", () => {
+  const backend = "https://api.example";
+  const source = "https://api.example/static/robe.jpg";
+  const resolved = catalogImagePath(source, backend, "");
+  assert.ok(resolved);
+  assert.equal(catalogImagePath(resolved, backend, ""), resolved);
+  for (const value of ["https://evil.example/private", "http://127.0.0.1/admin", "/admin/users"]) {
+    assert.equal(catalogImagePath("/api/catalog-image?url=" + encodeURIComponent(value), backend, ""), null);
+  }
+  assert.equal(catalogImagePath(resolved + "&url=https://evil.example/photo.jpg", backend, ""), null);
+  assert.equal(catalogImagePath(resolved + "&unexpected=1", backend, ""), null);
+  assert.equal(catalogImagePath("/images/demo/robe.jpg", backend, ""), null);
 });
 test("SEO rejects credential/path origins and escapes script injection", () => {
   assert.equal(siteOrigin("https://shop.example"), "https://shop.example");
@@ -93,6 +107,55 @@ function rawProduct(id, price = 399, extra = {}) {
 const group = (id, extra = {}) => ({ id, handle: id, name: id === "robes" ? "Robes" : id, description: "", parentId: null, ...extra });
 const data = (products, categories = [group("robes")], collections = []) => ({ products: products.map(normalizeProduct), categories, collections });
 const select = (products, filters = {}, scope) => selectCatalog(data(products), parseFilters(filters), scope);
+
+test("imported variant titles recover only exact declared choices and preserve Medusa identity and price", () => {
+  const raw = rawProduct("imported", 449, {
+    options: [{ id: "new-size", title: "Taille", values: [{ value: "S" }, { value: "M" }] }, { id: "new-color", title: "Couleur", values: [{ value: "Terracotta" }, { value: "Noir" }] }],
+    variants: [variant("variant_existing", "S", "Terracotta", 449, 10, { title: "Terracotta / S", options: [] })],
+  });
+  const product = normalizeProduct(raw);
+  const match = variantForOptions(product, { Couleur: "Terracotta", Taille: "S" });
+  assert.equal(match.id, "variant_existing");
+  assert.equal(match.price, 449);
+  assert.equal(match.maxQuantity, 10);
+  assert.deepEqual(match.sizes, ["S"]);
+  assert.deepEqual(match.colors, ["Terracotta"]);
+  assert.equal(variantForOptions(product, { Couleur: "Terracotta" }), null);
+  assert.deepEqual(normalizeProduct({ ...raw, variants: [{ ...raw.variants[0], title: "Imagined / S" }] }).variants[0].options, []);
+  const ambiguous = { ...raw, options: [{ title: "Taille", values: [{ value: "S" }] }, { title: "Couleur", values: [{ value: "S" }] }] };
+  assert.deepEqual(normalizeProduct({ ...ambiguous, variants: [{ ...raw.variants[0], title: "S / S" }] }).variants[0].options, []);
+  const linked = { ...raw, variants: [variant("variant_linked", "M", "Noir", 499, 0, { title: "Terracotta / S" })], options: [{ id: "size", title: "Taille" }, { id: "color", title: "Couleur" }] };
+  assert.equal(variantForOptions(normalizeProduct(linked), { Taille: "M", Couleur: "Noir" }).id, "variant_linked");
+});
+
+test("empty groups are hidden without changing associations or merchant records", () => {
+  const input = data([rawProduct("child-product", 399, { categories: [{ id: "child" }], collection_id: "assigned" })], [group("parent"), group("child", { parentId: "parent" }), group("empty")], [group("assigned"), group("new-arrivals")]);
+  const before = JSON.stringify(input);
+  const visible = populatedCatalogGroups(input);
+  assert.deepEqual(visible.categories.map(c => c.id), ["parent", "child"]);
+  assert.deepEqual(visible.collections.map(c => c.id), ["assigned"]);
+  assert.equal(JSON.stringify(input), before);
+  assert.equal(visible.products[0].collectionId, "assigned");
+  assert.deepEqual(populatedCatalogGroups({ ...input, products: [] }).collections, []);
+});
+
+test("homepage arrivals use recent available products without requiring a New Arrivals collection", () => {
+  const input = data([
+    rawProduct("older", 299, { created_at: "2026-10-01" }),
+    rawProduct("newer", 449, { created_at: "2026-10-15" }),
+    rawProduct("sold-out", 399, { created_at: "2026-10-16", variants: [variant("sold", "M", "Noir", 399, 0)] }),
+  ], [], [group("new-arrivals")]);
+  assert.deepEqual(homepageArrivals(input).map(item => item.product.id), ["newer", "older"]);
+  assert.equal(homepageArrivals(input, 1)[0].product.id, "newer");
+  assert.deepEqual(homepageArrivals({ ...input, products: [] }), []);
+});
+
+test("size sorting and demo color swatches preserve actual option values", () => {
+  const product = normalizeProduct(rawProduct("sizes", 399, { variants: [variant("xl", "XL", "Terracotta", 399), variant("s", "S", "Terracotta", 399), variant("l", "L", "Terracotta", 399), variant("m", "M", "Terracotta", 399)] }));
+  assert.deepEqual(orderedOptionValues(product, "Taille"), ["S", "M", "L", "XL"]);
+  for (const color of ["Terracotta", "Sauge", "Marine", "Bleu ciel", "Écru", "Rose poudré", "Camel", "Sable", "Olive", "Champagne", "Anthracite", "Taupe"]) assert.match(optionColor("Couleur", color), /^#[a-f0-9]{6}$/);
+  assert.equal(optionColor("Taille", "S"), null);
+});
 
 test("readiness hides incomplete or explicitly hidden merchant data without treating sold-out or single-size products as test data", () => {
   const ready = rawProduct("ready", 150, { thumbnail: "/images/merchant-photo.jpg" });

@@ -1,0 +1,110 @@
+[
+  {
+    "id": "prod_01M4XEHJF703JME0G4RH1JM4EC",
+    "handle": "amoon-demo-robe-midi-elise",
+    "title": "Robe midi portefeuille Élise",
+    "price_mad": 449,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791990902226-001.png",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-robe-midi-elise"
+  },
+  {
+    "id": "prod_01M4XEHJF828HH1XE871X3E0WP",
+    "handle": "amoon-demo-blouse-salma",
+    "title": "Blouse à col noué Salma",
+    "price_mad": 329,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991368567-005.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-blouse-salma"
+  },
+  {
+    "id": "prod_01M4XEHJF87699X1132757RFMC",
+    "handle": "amoon-demo-robe-chemise-lina",
+    "title": "Robe chemise ceinturée Lina",
+    "price_mad": 499,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991289881-003.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-robe-chemise-lina"
+  },
+  {
+    "id": "prod_01M4XEHJF8C10649VJ8QX95QJA",
+    "handle": "amoon-demo-ensemble-dalia",
+    "title": "Ensemble chemise et pantalon Dalia",
+    "price_mad": 699,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991444694-007.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-ensemble-dalia"
+  },
+  {
+    "id": "prod_01M4XEHJF8NXYG7VYB8M5FC23X",
+    "handle": "amoon-demo-chemise-ines",
+    "title": "Chemise à coupe ample Inès",
+    "price_mad": 299,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991363366-004.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-chemise-ines"
+  },
+  {
+    "id": "prod_01M4XEHJF8W54P7KTBEQFKP755",
+    "handle": "amoon-demo-robe-longue-nour",
+    "title": "Robe longue plissée Nour",
+    "price_mad": 599,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991149983-002.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-robe-longue-nour"
+  },
+  {
+    "id": "prod_01M4XEHJF8XNWR335NV45FBP45",
+    "handle": "amoon-demo-top-aya",
+    "title": "Top à maille côtelée Aya",
+    "price_mad": 229,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991372794-006.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-top-aya"
+  },
+  {
+    "id": "prod_01M4XEHJF93FM08DQSWX861W84",
+    "handle": "amoon-demo-pantalon-amira",
+    "title": "Pantalon large taille haute Amira",
+    "price_mad": 399,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991459654-010.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-pantalon-amira"
+  },
+  {
+    "id": "prod_01M4XEHJF9A8ZJ68EK7G42VZC9",
+    "handle": "amoon-demo-jupe-yasmine",
+    "title": "Jupe midi plissée Yasmine",
+    "price_mad": 349,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991454168-009.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-jupe-yasmine"
+  },
+  {
+    "id": "prod_01M4XEHJF9CM7BPPQJB4W2B6SB",
+    "handle": "amoon-demo-ensemble-sofia",
+    "title": "Ensemble veste et pantalon Sofia",
+    "price_mad": 899,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991449203-008.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-ensemble-sofia"
+  },
+  {
+    "id": "prod_01M4XEHJF9MN7DGRN2GH27N9DQ",
+    "handle": "amoon-demo-gilet-jade",
+    "title": "Gilet long ouvert Jade",
+    "price_mad": 379,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991470778-012.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-gilet-jade"
+  },
+  {
+    "id": "prod_01M4XEHJF9WGA04RDEX11FY4DN",
+    "handle": "amoon-demo-veste-leila",
+    "title": "Veste blazer structurée Leïla",
+    "price_mad": 599,
+    "status": "published",
+    "image": "https://api-staggin.amoon.ma/static/1791991465494-011.jpg",
+    "storefront_url": "https://staggin.amoon.ma/produits/amoon-demo-veste-leila"
+  }
+]

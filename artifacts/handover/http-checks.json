@@ -1,0 +1,209 @@
+{
+  "results": [
+    {
+      "url": "http://localhost:8005/collections",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/nouveautes",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/boutique",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/favoris",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/contact",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/panier",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/collections/robes",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/collections/chemises-tops",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/collections/jupes-pantalons",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-pantalon-amira",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/collections/ensembles",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-gilet-jade",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-veste-leila",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-blouse-salma",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-robe-chemise-lina",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-chemise-ines",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-ensemble-dalia",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-top-aya",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/informations#livraison",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/informations#faq",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/informations#confidentialite",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/informations#commande",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/informations#retours",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-robe-midi-elise",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-robe-longue-nour",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-jupe-yasmine",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "http://localhost:8005/produits/amoon-demo-ensemble-sofia",
+      "status": 200,
+      "type": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991289881-003.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991444694-007.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991368567-005.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791990902226-001.png",
+      "status": 200,
+      "type": "image/png"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991372794-006.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991459654-010.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991363366-004.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991149983-002.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991470778-012.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991465494-011.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991454168-009.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    },
+    {
+      "url": "https://api-staggin.amoon.ma/static/1791991449203-008.jpg",
+      "status": 200,
+      "type": "image/jpeg"
+    }
+  ],
+  "newsletter": {
+    "hostedEmailInput": true,
+    "hostedDisabledNewsletter": true,
+    "signupSubmitted": false
+  }
+}

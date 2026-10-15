@@ -1,0 +1,113 @@
+{
+  "report_date": "2026-10-15",
+  "products_created": 12,
+  "variants": 96,
+  "unique_skus": 96,
+  "all_prices_match": true,
+  "all_draft_at_export": true,
+  "all_manage_inventory": true,
+  "all_backorders_disabled": true,
+  "all_variant_options_match": true,
+  "variant_demo_metadata": true,
+  "inventory_admin_verified": {
+    "unique_skus": 96,
+    "stocked_quantity_each": 10,
+    "reserved_quantity_each": 0,
+    "total_units": 960,
+    "location": "Amoon Collection"
+  },
+  "final_admin_verified": {
+    "drafts": 12,
+    "variants_each": 8,
+    "thumbnails_loaded": 12
+  },
+  "images": [
+    {
+      "id": "prod_01M4XEHJF703JME0G4RH1JM4EC",
+      "raw_status": 200,
+      "raw_type": "image/png",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/png"
+    },
+    {
+      "id": "prod_01M4XEHJF828HH1XE871X3E0WP",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    },
+    {
+      "id": "prod_01M4XEHJF87699X1132757RFMC",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    },
+    {
+      "id": "prod_01M4XEHJF8C10649VJ8QX95QJA",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    },
+    {
+      "id": "prod_01M4XEHJF8NXYG7VYB8M5FC23X",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    },
+    {
+      "id": "prod_01M4XEHJF8W54P7KTBEQFKP755",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    },
+    {
+      "id": "prod_01M4XEHJF8XNWR335NV45FBP45",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    },
+    {
+      "id": "prod_01M4XEHJF93FM08DQSWX861W84",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    },
+    {
+      "id": "prod_01M4XEHJF9A8ZJ68EK7G42VZC9",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    },
+    {
+      "id": "prod_01M4XEHJF9CM7BPPQJB4W2B6SB",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    },
+    {
+      "id": "prod_01M4XEHJF9MN7DGRN2GH27N9DQ",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    },
+    {
+      "id": "prod_01M4XEHJF9WGA04RDEX11FY4DN",
+      "raw_status": 200,
+      "raw_type": "image/jpeg",
+      "storefront_image_status": 200,
+      "storefront_image_type": "image/jpeg"
+    }
+  ],
+  "storefront_demo_listings_found": 0,
+  "staging_isolated": false,
+  "published": false
+}

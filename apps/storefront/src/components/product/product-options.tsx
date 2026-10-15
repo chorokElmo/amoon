@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { changeCart } from "@/lib/cart-client";
 import { type CatalogProduct, formatMad } from "@/lib/catalog-model";
-import { selectedVariant, stockLabel, variantLabel, variantForOptions, optionAvailability, optionColor } from "@/lib/product-model";
+import { selectedVariant, stockLabel, variantLabel, variantForOptions, optionAvailability, optionColor, optionKind, orderedOptionValues } from "@/lib/product-model";
 import { Icon } from "@/components/ui/icon";
 import { buttonClass } from "@/components/ui/button";
 
@@ -20,7 +20,8 @@ export function ProductOptions({ product, initialVariantId, whatsappUrl }: { pro
   const locked = useRef(false);
   const router = useRouter();
   const variant = product.variants.find(item => item.id === variantId) || null;
-  const optionNames = [...new Set(product.variants.flatMap(item => item.options.map(option => option.name)))];
+  const optionOrder = { color: 0, size: 1, other: 2 };
+  const optionNames = [...new Set(product.variants.flatMap(item => item.options.map(option => option.name)))].sort((a, b) => optionOrder[optionKind(a)] - optionOrder[optionKind(b)]);
   const grouped = optionNames.length > 0 && product.variants.every(item => item.options.length === optionNames.length && optionNames.every(name => item.options.some(option => option.name === name)));
   const prices = product.variants.flatMap(item => item.price === null ? [] : [item.price]);
   const completeChoices = grouped && optionNames.every(name => choices[name]);
@@ -45,11 +46,11 @@ export function ProductOptions({ product, initialVariantId, whatsappUrl }: { pro
   const inquiry = whatsappUrl ? whatsappUrl + "?text=" + encodeURIComponent(message) : "/contact";
   return <div className="product-options">
     <div className="product-selected-summary" aria-live="polite" aria-atomic="true"><p className="product-detail-price">{variant ? variant.price !== null ? <>{formatMad(variant.price)}{sale && <del>{formatMad(variant.originalPrice!)}</del>}</> : t("Prix indisponible") : completeChoices ? t("Combinaison indisponible") : prices.length ? <>{t("À partir de ")}{formatMad(Math.min(...prices))}</> : t("Prix indisponible")}</p>{variant && <><p className={"catalog-stock catalog-stock--" + variant.stock}>{variant.stock === "out_of_stock" ? t("Rupture de stock") : t(stockLabel(variant.stock))}</p>{variant.sku && <p className="product-sku">{t("Référence : ")}{variant.sku}</p>}</>}</div>
-    {(product.variants.length > 1 || !variant) && grouped && optionNames.map(name => <fieldset className="pdp-variants" key={name}><legend>{t(name)}{choices[name] && <span> · {t(choices[name])}</span>}</legend><div>{[...new Set(product.variants.flatMap(item => item.options.filter(option => option.name === name).map(option => option.value)))].map(value => {
+    {(product.variants.length > 1 || !variant) && grouped && optionNames.map(name => <fieldset className={"pdp-variants pdp-variants--" + optionKind(name)} key={name}><legend>{t(name)}{choices[name] && <span> · {t(choices[name])}</span>}</legend><div>{orderedOptionValues(product, name).map(value => {
       const availability = optionAvailability(product, choices, name, value);
       const color = optionColor(name, value);
       const unavailable = !["En stock", "Sur commande"].includes(availability);
-      return <button type="button" key={value} className="pdp-option" data-unavailable={unavailable || undefined} aria-label={t(value) + " · " + t(availability)} aria-pressed={choices[name] === value} disabled={busy} onClick={() => choose(name, value)}>{color && <span className="pdp-color-swatch" style={{ backgroundColor: color }} aria-hidden="true"/>}<span>{t(value)}</span>{availability !== "En stock" && <small>{t(availability)}</small>}</button>;
+      return <button type="button" key={value} className="pdp-option" data-unavailable={unavailable || undefined} aria-label={t(value) + " · " + t(availability)} aria-pressed={choices[name] === value} disabled={busy} onClick={() => choose(name, value)}>{color && <span className="pdp-color-swatch" style={{ backgroundColor: color }} aria-hidden="true"/>}<span>{optionKind(name) === "size" ? <bdi>{t(value)}</bdi> : t(value)}</span>{availability !== "En stock" && <small>{t(availability)}</small>}</button>;
     })}</div></fieldset>)}
     {(!grouped && (product.variants.length > 1 || (product.variants.length === 1 && !variant))) && <fieldset className="pdp-variants"><legend>{t("Choisir votre variante")}</legend><div>{product.variants.map(item => <button type="button" key={item.id} aria-pressed={variantId === item.id} disabled={busy} onClick={() => { setVariantId(item.id); setQuantity(1); setCartMessage(""); setCartError(""); }}>{variantLabel(item, t)}{item.stock === "out_of_stock" ? <small>{t("Épuisé")}</small> : item.stock === "unknown" ? <small>{t("À confirmer")}</small> : null}</button>)}</div></fieldset>}    {product.variants.length === 0 && <p>{t("Aucune variante n’est disponible pour cette pièce.")}</p>}
     {variant && product.variants.length === 1 && variant.options.some(option => option.name.toLowerCase() !== "default option") && <dl className="product-variant-details">{variant.options.map((option, index) => <div key={index}><dt>{t(option.name)}</dt><dd>{t(option.value)}</dd></div>)}</dl>}

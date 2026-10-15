@@ -1,0 +1,117 @@
+[
+  {
+    "url": "/boutique",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/informations#commande",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/collections",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/collections/robes",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/collections/chemises-tops",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/collections/ensembles",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/produits/amoon-demo-pantalon-amira",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/collections/jupes-pantalons",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/produits/amoon-demo-gilet-jade",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/produits/amoon-demo-blouse-salma",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/produits/amoon-demo-veste-leila",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/produits/amoon-demo-robe-chemise-lina",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/contact",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/produits/amoon-demo-ensemble-dalia",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/produits/amoon-demo-top-aya",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/produits/amoon-demo-chemise-ines",
+    "status": 200,
+    "type": "text/html; charset=utf-8"
+  },
+  {
+    "url": "/images/editorial/beige-blazer.webp",
+    "status": 200,
+    "type": "image/webp"
+  },
+  {
+    "url": "/images/editorial/daylight-field.webp",
+    "status": 200,
+    "type": "image/webp"
+  },
+  {
+    "url": "/images/editorial/daylight-field-mobile.webp",
+    "status": 200,
+    "type": "image/webp"
+  },
+  {
+    "url": "/images/editorial/ivory-dress.webp",
+    "status": 200,
+    "type": "image/webp"
+  },
+  {
+    "url": "/images/editorial/neutral-shirt.webp",
+    "status": 200,
+    "type": "image/webp"
+  },
+  {
+    "url": "/images/editorial/stone-wall-dress.webp",
+    "status": 200,
+    "type": "image/webp"
+  },
+  {
+    "url": "/images/editorial/white-shirt-trousers.webp",
+    "status": 200,
+    "type": "image/webp"
+  }
+]

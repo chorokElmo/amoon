@@ -35,7 +35,7 @@ export async function readMedusaCatalog(config: MedusaConfig, transport: Transpo
     const region = config.regionId ? compatible.find(region => region.id === config.regionId) : compatible.length === 1 ? compatible[0] : null;
     if (!region) throw new CatalogUnavailable("region");
     const [products, categories, collections] = await Promise.all([
-      all("/store/products", "products", { fields: "*options,*variants.options,*variants.options.option,*variants.calculated_price,+variants.inventory_quantity,+metadata,*categories,*images", region_id: text(region.id), country_code: "ma", order: "id" }),
+      all("/store/products", "products", { fields: "*options,*options.values,*variants.options,*variants.options.option,*variants.calculated_price,+variants.inventory_quantity,+metadata,*categories,*images", region_id: text(region.id), country_code: "ma", order: "id" }),
       all("/store/product-categories", "product_categories", { fields: "id,name,handle,description,parent_category_id", order: "rank" }),
       all("/store/collections", "collections", { fields: "id,title,handle", order: "id" }),
     ]);

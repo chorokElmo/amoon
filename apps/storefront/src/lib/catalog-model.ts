@@ -14,6 +14,24 @@ export const list = (value: unknown): unknown[] => Array.isArray(value) ? value 
 export const text = (value: unknown): string => typeof value === "string" ? value : "";
 const amount = (value: unknown): number | null => typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
 
+// Some imports leave a variant's option links empty while retaining its title and
+// the product's declared values. Recover only an exact, unambiguous assignment.
+export function declaredVariantOptions(product: Record<string, unknown>, variant: Record<string, unknown>): CatalogVariant["options"] {
+  const declared = list(product.options).map(record);
+  const parts = text(variant.title).split(/\s*\/\s*/).map(part => part.trim());
+  if (!declared.length || parts.length !== declared.length || declared.some(option => !text(option.title) || !list(option.values).length)) return [];
+  const used = new Set<number>();
+  const result: CatalogVariant["options"] = [];
+  for (const option of declared) {
+    const values = new Set(list(option.values).map(value => text(record(value).value)));
+    const matches = parts.flatMap((value, index) => !used.has(index) && values.has(value) ? [index] : []);
+    if (matches.length !== 1) return [];
+    used.add(matches[0]);
+    result.push({ name: text(option.title), value: parts[matches[0]] });
+  }
+  return result;
+}
+
 export function normalizeGroup(value: unknown, collection = false): CatalogGroup {
   const group = record(value);
   if (!text(group.id) || !text(group.handle) || !text(collection ? group.title : group.name)) throw new Error("Invalid catalog group");
@@ -35,6 +53,13 @@ export function normalizeProduct(value: unknown): CatalogProduct {
       if (value && name) options.push({ name, value });
       if (value && ["taille", "tailles", "size", "sizes"].includes(title)) sizes.push(value);
       if (value && ["couleur", "couleurs", "color", "colors", "colour", "colours"].includes(title)) colors.push(value);
+    }
+    if (!list(variant.options).length) {
+      for (const option of declaredVariantOptions(product, variant)) {
+        options.push(option);
+        if (["taille", "tailles", "size", "sizes"].includes(fold(option.name))) sizes.push(option.value);
+        if (["couleur", "couleurs", "color", "colors", "colour", "colours"].includes(fold(option.name))) colors.push(option.value);
+      }
     }
     let stock: Stock = "unknown";
     if (variant.manage_inventory === false || (typeof variant.inventory_quantity === "number" && variant.inventory_quantity > 0)) stock = "in_stock";
@@ -112,6 +137,23 @@ export function descendantIds(categories: CatalogGroup[], id: string): Set<strin
   const result = new Set([id, ...categories.filter(group => name && fold(group.name) === fold(name)).map(group => group.id)]);
   for (let size = -1; size !== result.size;) { size = result.size; for (const group of categories) if (group.parentId && result.has(group.parentId)) result.add(group.id); }
   return result;
+}
+
+// Presentation only: preserve every merchant record in Medusa, but do not link
+// shoppers to empty groups. Parent categories retain products in descendants.
+export function populatedCatalogGroups(data: CatalogData): CatalogData {
+  return {
+    ...data,
+    categories: data.categories.filter(category => {
+      const ids = descendantIds(data.categories, category.id);
+      return data.products.some(product => product.categoryIds.some(id => ids.has(id)));
+    }),
+    collections: data.collections.filter(collection => data.products.some(product => product.collectionId === collection.id)),
+  };
+}
+
+export function homepageArrivals(data: CatalogData, limit = 8) {
+  return selectCatalog(data, parseFilters({ disponible: "1" }), undefined, limit).items;
 }
 export function groupByHandle(data: CatalogData, handle: string) {
   const category = data.categories.find(group => group.handle === handle);
